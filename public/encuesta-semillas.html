@@ -81,6 +81,7 @@
     /* Campos */
     .field label, .field .legend { display: block; font-weight: 600; font-size: 14px; margin-bottom: 4px; }
     .req { color: var(--ochre-dark); margin-left: 2px; }
+    .ejemplo { font-weight: 400; color: var(--muted); }
     .hint { display: block; color: var(--muted); font-size: 12.5px; margin-top: 3px; }
     input[type=text], input[type=email], input[type=date], input[type=tel], select, textarea {
       width: 100%; font: inherit; color: var(--text); background: #fff;
@@ -274,7 +275,7 @@
           <select name="cat" required>
             <option value="">Seleccione…</option>
           </select><span class="error"></span></div>
-        <div class="field full"><label>Variedad, material o tipo de semilla<span class="req">*</span></label><input type="text" name="mat" required><span class="error"></span></div>
+        <div class="field full"><label>Variedad, material o tipo de semilla<span class="req">*</span> <span class="ejemplo">(ejemplo: Híbrido-Coari x La Mé - Fortuna)</span></label><input type="text" name="mat" required><span class="error"></span></div>
         <div class="field" data-only="prod pre viv"><label>Cantidad bruta en número de semillas, sin descartes<span class="req">*</span></label><input type="text" name="cant" required data-kind="int" data-min="0" inputmode="numeric"><span class="hint">Número entero.</span><span class="error"></span></div>
         <div class="field" data-only="prod pre viv"><label>Densidad de siembra sugerida (palmas/ha)<span class="req">*</span></label><input type="text" name="dens" required data-kind="dec" data-gt="0" inputmode="decimal"><span class="error"></span></div>
         <div class="field" data-only="prod pre viv"><label>Porcentaje de descarte sugerido (%)<span class="req">*</span></label><input type="text" name="desc" required data-kind="dec" data-min="0" data-max="100" inputmode="decimal"><span class="hint">Entre 0 y 100. Ejemplo: 12,5</span><span class="error"></span></div>
