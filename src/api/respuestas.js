@@ -2,16 +2,15 @@
 // POST /api/respuestas  →  { ok: true, radicado: "S26-XXXXXXXX" }
 
 const ANIO = 2026;
+const ANIO_PRODUCCION = 2025;
 const MAX_BYTES = 1_000_000;
 const MAX_MATERIALES = 300;
 const MAX_VENTAS = 1000;
 
 const CATS = {
-  prod: { label: `Semilla producida en ${ANIO}`, campos: ['cant', 'dens', 'desc', 'anio'] },
+  prod: { label: `Semilla producida en ${ANIO_PRODUCCION}`, campos: ['cant', 'dens', 'desc', 'anio'] },
   pre: { label: 'Semilla en previvero para venta o entrega', campos: ['cant', 'dens', 'desc', 'edad'] },
   viv: { label: 'Semilla en vivero para venta o entrega', campos: ['cant', 'dens', 'desc', 'edad'] },
-  imp: { label: 'Semilla importada', campos: ['cant', 'dens', 'desc', 'anio'] },
-  sie: { label: 'Semilla sembrada por la propia empresa', campos: ['cant', 'mun', 'anio', 'ha'] },
 };
 const TIPOS = ['Intermediario', 'Cultivador de palma de aceite', 'Intermediario y cultivador'];
 const DEPARTAMENTOS = ['Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bogotá D.C.', 'Bolívar', 'Boyacá',
@@ -90,7 +89,7 @@ function validar(d) {
   const activo = actividad === 'Sí';
   if (activo && !envio.declaracion) errores.push('Declaración: debe aceptarse');
   const mats = activo && Array.isArray(d.materiales) ? d.materiales : [];
-  const vens = activo && Array.isArray(d.ventas) ? d.ventas : [];
+  const vens = []; // Ventas: fuera de la encuesta por ahora.
   if (mats.length > MAX_MATERIALES) errores.push(`Materiales: máximo ${MAX_MATERIALES}`);
   if (vens.length > MAX_VENTAS) errores.push(`Ventas: máximo ${MAX_VENTAS}`);
 
