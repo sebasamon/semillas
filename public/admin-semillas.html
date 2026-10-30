@@ -66,7 +66,7 @@
       </div>
       <div class="panel">
         <h2 style="margin:0 0 10px;font-size:17px;color:var(--olive-dark)">Envíos recibidos</h2>
-        <div class="wrap"><table><thead><tr><th>Recibido (hora Colombia)</th><th>Radicado</th><th>NIT</th><th>Empresa</th><th>Actividad</th><th>Materiales</th><th>Ventas</th><th>Diligenció</th></tr></thead><tbody id="tabla"></tbody></table></div>
+        <div class="wrap"><table><thead><tr><th>Recibido (hora Colombia)</th><th>Radicado</th><th>NIT</th><th>Empresa</th><th>Producción o inventario</th><th>Materiales</th><th>Diligenció</th></tr></thead><tbody id="tabla"></tbody></table></div>
       </div>
     </div>
   </main>
@@ -119,6 +119,13 @@
       return { envios: data.envios.filter(ok), materiales: data.materiales.filter(ok), ventas: data.ventas.filter(ok) };
     }
 
+    function categorias(materiales) {
+      var vistas = {};
+      materiales.forEach(function (m) { vistas[m.categoria] = true; });
+      var orden = function (c) { return /producida/.test(c) ? 0 : /previvero/.test(c) ? 1 : /vivero/.test(c) ? 2 : 3; };
+      return Object.keys(vistas).sort(function (a, b) { return orden(a) - orden(b) || a.localeCompare(b); });
+    }
+
     function render() {
       var d = filtrados();
       var ult = vigentes();
@@ -128,16 +135,16 @@
       $('#stats').innerHTML = [
         [empresas, 'Empresas (NIT distintos)'],
         [data.envios.length, 'Envíos recibidos en total'],
-        [d.envios.filter(function (e) { return e.actividad === 'No'; }).length, 'Empresas sin actividad'],
+        [d.envios.filter(function (e) { return e.actividad === 'No'; }).length, 'Sin producción ni inventario'],
         [d.materiales.length, 'Registros de materiales'],
-        [d.ventas.length, 'Ventas registradas'],
-        [fmt.format(sum(d.ventas)), 'Semillas vendidas'],
-      ].map(function (s) { return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'; }).join('');
+      ].concat(categorias(d.materiales).map(function (c) {
+        return [fmt.format(sum(d.materiales.filter(function (m) { return m.categoria === c; }))), c + ' (semillas)'];
+      })).map(function (s) { return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'; }).join('');
       $('#tabla').innerHTML = data.envios.slice().reverse().map(function (e) {
         return '<tr class="' + (ult[e.nit] === e.id ? '' : 'old') + '"><td>' + esc(hora(e.recibido)) + '</td><td>' + esc(e.id) + '</td><td>' + esc(e.nit) +
           '</td><td>' + esc(e.empresa) + '</td><td>' + esc(e.actividad) + '</td><td>' + cuenta(data.materiales, e.id) +
-          '</td><td>' + cuenta(data.ventas, e.id) + '</td><td>' + esc(e.dil) + '</td></tr>';
-      }).join('') || '<tr><td colspan="8">Aún no hay respuestas.</td></tr>';
+          '</td><td>' + esc(e.dil) + '</td></tr>';
+      }).join('') || '<tr><td colspan="7">Aún no hay respuestas.</td></tr>';
     }
 
     function excel() {
@@ -148,22 +155,16 @@
           'NIT': e.nit, 'Empresa': e.empresa, 'Representante legal': e.rep, 'Identificación representante': e.rep_id,
           'Teléfono': e.tel, 'Celular': e.cel, 'Fax': e.fax, 'Dirección': e.direccion, 'Ciudad': e.ciudad,
           'Diligenciado por': e.dil, 'Cargo': e.cargo, 'Correo': e.correo, 'Fecha declarada': e.fecha,
-          'Reporta actividad': e.actividad, 'Observaciones': e.obs, 'Declaración': e.declaracion ? 'Acepto' : '' };
+          'Producción o inventario': e.actividad, 'Observaciones': e.obs, 'Declaración': e.declaracion ? 'Acepto' : '' };
       };
       var mapM = function (m) {
         return { 'Radicado': m.envio_id, 'NIT': m.nit, 'Empresa': m.empresa, 'N°': m.n, 'Categoría': m.categoria, 'Material': m.material,
-          'Cantidad bruta': m.cantidad, 'Densidad sugerida (palmas/ha)': m.densidad, 'Descarte sugerido (%)': m.descarte, 'Año': m.anio,
-          'Edad (meses)': m.edad, 'Municipio de siembra': m.municipio, 'Hectáreas sembradas': m.hectareas, 'Observaciones': m.obs };
-      };
-      var mapV = function (v) {
-        return { 'Radicado': v.envio_id, 'NIT vendedor': v.nit, 'Empresa vendedora': v.empresa, 'N°': v.n, 'Año': v.anio,
-          'Comprador': v.comprador, 'Identificación comprador': v.comprador_id, 'Teléfono comprador': v.telefono, 'Material': v.material,
-          'Cantidad bruta': v.cantidad, 'Departamento destino': v.departamento, 'Municipio destino': v.municipio,
-          'Tipo de comprador': v.tipo, 'Observaciones': v.obs };
+          'Cantidad bruta': m.cantidad, 'Densidad sugerida (palmas/ha)': m.densidad, 'Descarte sugerido (%)': m.descarte, 'Año de producción': m.anio,
+          'Edad (meses)': m.edad, 'Observaciones': m.obs };
       };
       var wb = XLSX.utils.book_new();
       // Headers come from mapping an empty record, so sheets without rows still have their columns.
-      [[d.envios, mapE, 'Empresas'], [d.materiales, mapM, 'Inventario y uso'], [d.ventas, mapV, 'Ventas']].forEach(function (s) {
+      [[d.envios, mapE, 'Empresas'], [d.materiales, mapM, 'Inventario y uso']].forEach(function (s) {
         var header = Object.keys(s[1]({}));
         var ws = XLSX.utils.json_to_sheet(s[0].map(s[1]), { header: header });
         ws['!cols'] = header.map(function (h) { return { wch: Math.max(12, Math.min(40, h.length + 4)) }; });

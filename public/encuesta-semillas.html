@@ -54,7 +54,7 @@
     main { max-width: 960px; margin: 0 auto; padding: 20px 16px 64px; }
 
     /* Pasos */
-    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; }
     .steps button {
       width: 100%; border: 1px solid var(--line); background: var(--surface); color: var(--muted);
       border-radius: 10px; padding: 10px 8px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
@@ -151,7 +151,7 @@
       <div>
         <div class="hero__org">Sistema de Información Estadística del Sector Palmero · SISPA</div>
         <h1>Encuesta a núcleos vendedores de semillas de palma de aceite</h1>
-        <p>Año calendario <span data-anio>2026</span> · Tiempo estimado: 10 minutos</p>
+        <p>Año calendario <span data-anio>2026</span> · Tiempo estimado: 5 minutos</p>
       </div>
     </div>
   </header>
@@ -160,8 +160,7 @@
     <ol class="steps" id="steps">
       <li><button type="button" data-goto="0"><span class="num">1</span><span class="label">Empresa</span></button></li>
       <li><button type="button" data-goto="1"><span class="num">2</span><span class="label">Producción e inventario</span></button></li>
-      <li><button type="button" data-goto="2"><span class="num">3</span><span class="label">Ventas</span></button></li>
-      <li><button type="button" data-goto="3"><span class="num">4</span><span class="label">Revisión y envío</span></button></li>
+      <li><button type="button" data-goto="2"><span class="num">3</span><span class="label">Revisión y envío</span></button></li>
     </ol>
 
     <form id="encuesta" novalidate autocomplete="on">
@@ -198,7 +197,7 @@
 
           <h3>Actividad</h3>
           <div class="field" data-radio="emp_actividad">
-            <span class="legend">Durante <span data-anio>2026</span>, ¿la empresa produjo, importó, tuvo en previvero o vivero, sembró para uso propio o vendió semilla de palma de aceite?<span class="req">*</span></span>
+            <span class="legend">¿La empresa produjo semilla de palma de aceite en <span data-anio-prod>2025</span> o tiene semilla en previvero o vivero para venta o entrega?<span class="req">*</span></span>
             <div class="choices" role="radiogroup">
               <label class="choice"><input type="radio" name="emp_actividad" value="Sí" required><span>Sí</span></label>
               <label class="choice"><input type="radio" name="emp_actividad" value="No"><span>No</span></label>
@@ -213,10 +212,10 @@
       <!-- Paso 2 -->
       <section class="step" data-step="1" hidden>
         <div class="panel">
-          <h2>Producción, inventario y siembra propia</h2>
-          <p class="lead">Agregue un registro por cada variedad o material y categoría: semilla producida, en previvero, en vivero, importada o sembrada por la propia empresa. Puede agregar todos los que necesite.</p>
+          <h2>Producción e inventario</h2>
+          <p class="lead">Agregue un registro por cada variedad o material y categoría: semilla producida en <span data-anio-prod>2025</span>, en previvero o en vivero. Puede agregar todos los que necesite.</p>
           <div id="materiales"></div>
-          <div class="empty" id="materiales-vacio">Aún no hay materiales registrados. Si la empresa no tuvo producción, inventario ni siembra propia, continúe a Ventas.</div>
+          <div class="empty" id="materiales-vacio">Aún no hay materiales registrados. Use "+ Agregar material" para registrar la producción o el inventario.</div>
           <button type="button" class="btn btn--accent" id="add-material">+ Agregar material</button>
         </div>
         <div class="nav"><button type="button" class="btn btn--ghost" data-prev>Atrás</button><span class="spacer"></span><button type="button" class="btn btn--primary" data-next>Continuar</button></div>
@@ -224,18 +223,6 @@
 
       <!-- Paso 3 -->
       <section class="step" data-step="2" hidden>
-        <div class="panel">
-          <h2>Ventas de semilla</h2>
-          <p class="lead">Registre las personas, compañías o entidades a las que la empresa vendió semilla de palma de aceite. Un registro por cada combinación de comprador y material.</p>
-          <div id="ventas"></div>
-          <div class="empty" id="ventas-vacio">Aún no hay ventas registradas. Si la empresa no vendió semilla, continúe a la revisión.</div>
-          <button type="button" class="btn btn--accent" id="add-venta">+ Agregar venta</button>
-        </div>
-        <div class="nav"><button type="button" class="btn btn--ghost" data-prev>Atrás</button><span class="spacer"></span><button type="button" class="btn btn--primary" data-next>Continuar</button></div>
-      </section>
-
-      <!-- Paso 4 -->
-      <section class="step" data-step="3" hidden>
         <div class="panel">
           <h2>Revisión y envío</h2>
           <div id="resumen"></div>
@@ -263,7 +250,7 @@
       </section>
 
       <!-- Confirmación -->
-      <section class="step" data-step="4" hidden>
+      <section class="step" data-step="3" hidden>
         <div class="panel">
           <h2>¡Gracias! Sus respuestas fueron recibidas</h2>
           <p class="notice notice--ok">Número de radicado: <b id="radicado"></b>. Guárdelo como constancia del envío.</p>
@@ -288,38 +275,12 @@
             <option value="">Seleccione…</option>
           </select><span class="error"></span></div>
         <div class="field full"><label>Variedad, material o tipo de semilla<span class="req">*</span></label><input type="text" name="mat" required><span class="error"></span></div>
-        <div class="field" data-only="prod pre viv imp sie"><label data-label="cant">Cantidad bruta en número de semillas, sin descartes<span class="req">*</span></label><input type="text" name="cant" required data-kind="int" data-min="0" inputmode="numeric"><span class="hint">Número entero.</span><span class="error"></span></div>
-        <div class="field" data-only="prod pre viv imp"><label>Densidad de siembra sugerida (palmas/ha)<span class="req">*</span></label><input type="text" name="dens" required data-kind="dec" data-gt="0" inputmode="decimal"><span class="error"></span></div>
-        <div class="field" data-only="prod pre viv imp"><label>Porcentaje de descarte sugerido (%)<span class="req">*</span></label><input type="text" name="desc" required data-kind="dec" data-min="0" data-max="100" inputmode="decimal"><span class="hint">Entre 0 y 100. Ejemplo: 12,5</span><span class="error"></span></div>
-        <div class="field" data-only="prod imp sie"><label data-label="anio">Año<span class="req">*</span></label><input type="text" name="anio" required data-kind="int" data-min="2000" data-max="2026" inputmode="numeric"><span class="error"></span></div>
+        <div class="field" data-only="prod pre viv"><label>Cantidad bruta en número de semillas, sin descartes<span class="req">*</span></label><input type="text" name="cant" required data-kind="int" data-min="0" inputmode="numeric"><span class="hint">Número entero.</span><span class="error"></span></div>
+        <div class="field" data-only="prod pre viv"><label>Densidad de siembra sugerida (palmas/ha)<span class="req">*</span></label><input type="text" name="dens" required data-kind="dec" data-gt="0" inputmode="decimal"><span class="error"></span></div>
+        <div class="field" data-only="prod pre viv"><label>Porcentaje de descarte sugerido (%)<span class="req">*</span></label><input type="text" name="desc" required data-kind="dec" data-min="0" data-max="100" inputmode="decimal"><span class="hint">Entre 0 y 100. Ejemplo: 12,5</span><span class="error"></span></div>
+        <div class="field" data-only="prod"><label>Año de producción<span class="req">*</span></label><input type="text" name="anio" required data-kind="int" data-min="2000" data-max="2026" inputmode="numeric"><span class="error"></span></div>
         <div class="field" data-only="pre viv"><label>Edad (meses)<span class="req">*</span></label><input type="text" name="edad" required data-kind="dec" data-min="0" inputmode="decimal"><span class="error"></span></div>
-        <div class="field" data-only="sie"><label>Municipio donde fue sembrada<span class="req">*</span></label><input type="text" name="mun" required><span class="error"></span></div>
-        <div class="field" data-only="sie"><label>Hectáreas sembradas<span class="req">*</span></label><input type="text" name="ha" required data-kind="dec" data-min="0" inputmode="decimal"><span class="hint">Admite decimales.</span><span class="error"></span></div>
-        <div class="field full" data-only="prod pre viv imp sie"><label>Observaciones</label><input type="text" name="obs" maxlength="1000"></div>
-      </div>
-    </div>
-  </template>
-
-  <template id="tpl-venta">
-    <div class="item" data-item="venta">
-      <div class="item__head"><span class="item__title"></span><button type="button" class="btn btn--link" data-remove>Quitar</button></div>
-      <div class="grid">
-        <div class="field full"><label>Razón social o nombre del comprador<span class="req">*</span></label><input type="text" name="razon" required><span class="error"></span></div>
-        <div class="field"><label>NIT, cédula o identificación del comprador<span class="req">*</span></label><input type="text" name="id" required data-kind="doc"><span class="error"></span></div>
-        <div class="field"><label>Teléfono de contacto<span class="req">*</span></label><input type="tel" name="tel" required data-kind="tel"><span class="error"></span></div>
-        <div class="field"><label>Variedad, material o tipo de semilla comprada<span class="req">*</span></label><input type="text" name="mat" required><span class="error"></span></div>
-        <div class="field"><label>Semillas compradas (cantidad bruta, sin descartes)<span class="req">*</span></label><input type="text" name="cant" required data-kind="int" data-gt="0" inputmode="numeric"><span class="error"></span></div>
-        <div class="field"><label>Departamento de siembra definitiva<span class="req">*</span></label><select name="dep" required><option value="">Seleccione…</option></select><span class="error"></span></div>
-        <div class="field"><label>Municipio de siembra definitiva<span class="req">*</span></label><input type="text" name="mun" required><span class="error"></span></div>
-        <div class="field"><label>Año de la venta<span class="req">*</span></label><input type="text" name="anio" required data-kind="int" data-min="2000" data-max="2026" inputmode="numeric"><span class="error"></span></div>
-        <div class="field"><label>Tipo de comprador<span class="req">*</span></label>
-          <select name="tipo" required>
-            <option value="">Seleccione…</option>
-            <option>Intermediario</option>
-            <option>Cultivador de palma de aceite</option>
-            <option>Intermediario y cultivador</option>
-          </select><span class="hint">Intermediario: distribuye semilla a terceros.</span><span class="error"></span></div>
-        <div class="field full"><label>Observaciones</label><input type="text" name="obs" maxlength="1000"></div>
+        <div class="field full" data-only="prod pre viv"><label>Observaciones</label><input type="text" name="obs" maxlength="1000"></div>
       </div>
     </div>
   </template>
@@ -330,20 +291,13 @@
     'use strict';
 
     // Ajustes de la operación. Las respuestas se envían a la función de Cloudflare en functions/api/respuestas.js.
-    var CONFIG = { anio: 2026, api: 'api/respuestas' };
+    var CONFIG = { anio: 2026, anioProduccion: 2025, api: 'api/respuestas' };
 
     var CATS = [
-      { id: 'prod', label: 'Semilla producida en ' + CONFIG.anio, anio: 'Año de producción' },
+      { id: 'prod', label: 'Semilla producida en ' + CONFIG.anioProduccion },
       { id: 'pre', label: 'Semilla en previvero para venta o entrega' },
       { id: 'viv', label: 'Semilla en vivero para venta o entrega' },
-      { id: 'imp', label: 'Semilla importada', anio: 'Año de importación' },
-      { id: 'sie', label: 'Semilla sembrada por la propia empresa', anio: 'Año de siembra', cant: 'Cantidad de semilla sembrada' },
     ];
-    var DEPARTAMENTOS = ['Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bogotá D.C.', 'Bolívar', 'Boyacá',
-      'Caldas', 'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca', 'Guainía',
-      'Guaviare', 'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño', 'Norte de Santander', 'Putumayo',
-      'Quindío', 'Risaralda', 'San Andrés, Providencia y Santa Catalina', 'Santander', 'Sucre', 'Tolima',
-      'Valle del Cauca', 'Vaupés', 'Vichada'];
     var STORE_KEY = 'encuesta-semillas-' + CONFIG.anio;
     var EMP_FIELDS = ['emp_nombre', 'emp_nit', 'emp_rep', 'emp_rep_id', 'emp_tel', 'emp_cel', 'emp_fax', 'emp_ciudad',
       'emp_dir', 'emp_dil', 'emp_cargo', 'emp_correo', 'emp_fecha'];
@@ -354,6 +308,7 @@
     var current = 0;
 
     $$('[data-anio]').forEach(function (el) { el.textContent = CONFIG.anio; });
+    $$('[data-anio-prod]').forEach(function (el) { el.textContent = CONFIG.anioProduccion; });
 
     // ---------- Números ----------
     function parseNumber(raw, kind) {
@@ -444,30 +399,23 @@
     }
     function applyCategory(item) {
       var cat = $('select[name=cat]', item).value;
-      var meta = CATS.filter(function (c) { return c.id === cat; })[0] || {};
       $$('[data-only]', item).forEach(function (f) {
         f.hidden = !cat || f.dataset.only.split(' ').indexOf(cat) < 0;
         if (f.hidden) setError(f, '');
       });
-      var lAnio = $('[data-label=anio]', item);
-      lAnio.firstChild.textContent = meta.anio || 'Año';
-      $('[data-label=cant]', item).firstChild.textContent = meta.cant || 'Cantidad bruta en número de semillas, sin descartes';
+      var anio = $('input[name=anio]', item);
+      if (cat === 'prod' && !anio.value) anio.value = CONFIG.anioProduccion;
     }
-    function renumber(listId, noun) {
-      var items = $$('#' + listId + ' .item');
-      items.forEach(function (it, i) { $('.item__title', it).textContent = noun + ' ' + (i + 1); });
-      $('#' + listId + '-vacio').hidden = items.length > 0;
+    function renumber() {
+      var items = $$('#materiales .item');
+      items.forEach(function (it, i) { $('.item__title', it).textContent = 'Material ' + (i + 1); });
+      $('#materiales-vacio').hidden = items.length > 0;
     }
-    function addItem(kind, data, focus) {
-      var tpl = $('#tpl-' + kind).content.cloneNode(true);
+    function addItem(data, focus) {
+      var tpl = $('#tpl-material').content.cloneNode(true);
       var item = $('.item', tpl);
-      if (kind === 'material') {
-        fillSelect($('select[name=cat]', item), CATS);
-        $('select[name=cat]', item).addEventListener('change', function () { applyCategory(item); });
-      } else {
-        fillSelect($('select[name=dep]', item), DEPARTAMENTOS);
-        $('input[name=anio]', item).value = CONFIG.anio;
-      }
+      fillSelect($('select[name=cat]', item), CATS);
+      $('select[name=cat]', item).addEventListener('change', function () { applyCategory(item); });
       Object.keys(data || {}).forEach(function (k) {
         var el = $('[name="' + k + '"]', item);
         if (el) el.value = data[k];
@@ -475,18 +423,16 @@
       $('[data-remove]', item).addEventListener('click', function () {
         if (!confirm('¿Quitar este registro?')) return;
         item.remove();
-        renumber(kind === 'material' ? 'materiales' : 'ventas', kind === 'material' ? 'Material' : 'Venta');
+        renumber();
         save();
       });
-      var list = $(kind === 'material' ? '#materiales' : '#ventas');
-      list.appendChild(item);
-      if (kind === 'material') applyCategory(item);
-      renumber(kind === 'material' ? 'materiales' : 'ventas', kind === 'material' ? 'Material' : 'Venta');
+      $('#materiales').appendChild(item);
+      applyCategory(item);
+      renumber();
       if (focus) { item.scrollIntoView({ block: 'start' }); $('select, input', item).focus({ preventScroll: true }); }
       return item;
     }
-    $('#add-material').addEventListener('click', function () { addItem('material', null, true); save(); });
-    $('#add-venta').addEventListener('click', function () { addItem('venta', null, true); save(); });
+    $('#add-material').addEventListener('click', function () { addItem(null, true); save(); });
 
     // ---------- Estado ----------
     function readItems(listSel) {
@@ -506,7 +452,6 @@
         empresa: emp,
         actividad: act ? act.value : '',
         materiales: readItems('#materiales'),
-        ventas: readItems('#ventas'),
         obs: form.elements.obs_general.value.trim(),
         declaracion: form.elements.declaracion.checked,
       };
@@ -523,8 +468,7 @@
       }
       EMP_FIELDS.forEach(function (k) { if (d.empresa && d.empresa[k] != null) form.elements[k].value = d.empresa[k]; });
       if (d.actividad) { var r = $('input[name=emp_actividad][value="' + d.actividad + '"]'); if (r) r.checked = true; }
-      (d.materiales || []).forEach(function (m) { addItem('material', m); });
-      (d.ventas || []).forEach(function (v) { addItem('venta', v); });
+      (d.materiales || []).forEach(function (m) { addItem(m); });
       form.elements.obs_general.value = d.obs || '';
       form.elements.declaracion.checked = !!d.declaracion;
     }
@@ -541,20 +485,20 @@
         var n = Number(b.dataset.goto);
         if (n === step) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
         b.classList.toggle('done', n < step);
-        b.disabled = sinActividad() && (n === 1 || n === 2);
+        b.disabled = sinActividad() && n === 1;
       });
-      if (step === 3) renderResumen();
+      if (step === 2) renderResumen();
       window.scrollTo({ top: 0 });
     }
     function next() {
       if (!validateStep(current)) return;
       var to = current + 1;
-      if (current === 0 && sinActividad()) to = 3;
+      if (current === 0 && sinActividad()) to = 2;
       show(to);
     }
     function prev() {
       var to = current - 1;
-      if (current === 3 && sinActividad()) to = 0;
+      if (current === 2 && sinActividad()) to = 0;
       show(Math.max(0, to));
     }
     $$('[data-next]').forEach(function (b) { b.addEventListener('click', next); });
@@ -564,7 +508,7 @@
         var to = Number(b.dataset.goto);
         if (to > current) {
           for (var s = current; s < to; s++) {
-            if (sinActividad() && s > 0 && s < 3) continue;
+            if (sinActividad() && s === 1) continue;
             if (!validateStep(s)) { show(s); validateStep(s); return; }
           }
         }
@@ -581,7 +525,7 @@
       var h = '';
       $('#declaracion-wrap').hidden = d.actividad === 'No';
       if (d.actividad === 'No') {
-        h += '<p class="notice">La empresa indicó que no tuvo actividad de semilla en ' + CONFIG.anio + '. Descargue el archivo y envíelo para dejar constancia.</p>';
+        h += '<p class="notice">La empresa indicó que no tiene producción ni inventario de semilla para reportar. Envíe la encuesta para dejar constancia.</p>';
       } else {
         var porCat = CATS.map(function (c) {
           var items = d.materiales.filter(function (m) { return m.cat === c.id; });
@@ -589,15 +533,14 @@
         });
         h += '<div class="totals">';
         porCat.forEach(function (c) { h += '<div class="stat"><b>' + fmt.format(c.total) + '</b><span>' + esc(c.label) + ' · ' + c.n + ' registro(s)</span></div>'; });
-        h += '<div class="stat"><b>' + fmt.format(sum(d.ventas, 'cant')) + '</b><span>Semillas vendidas · ' + d.ventas.length + ' venta(s)</span></div>';
         h += '</div>';
-        if (!d.materiales.length && !d.ventas.length) {
-          h += '<p class="notice">Indicó que la empresa tuvo actividad en ' + CONFIG.anio + ', pero no registró materiales ni ventas. Revise los pasos 2 y 3.</p>';
+        if (!d.materiales.length) {
+          h += '<p class="notice">Indicó que la empresa tiene producción o inventario, pero no registró materiales. Revise el paso 2.</p>';
         }
       }
       var e = d.empresa;
       h += '<div class="table-wrap"><table class="summary"><tbody>' +
-        [['Empresa', e.emp_nombre], ['NIT', e.emp_nit], ['Representante legal', e.emp_rep], ['Diligenciado por', e.emp_dil + (e.emp_cargo ? ' · ' + e.emp_cargo : '')], ['Correo', e.emp_correo], ['Actividad en ' + CONFIG.anio, d.actividad]]
+        [['Empresa', e.emp_nombre], ['NIT', e.emp_nit], ['Representante legal', e.emp_rep], ['Diligenciado por', e.emp_dil + (e.emp_cargo ? ' · ' + e.emp_cargo : '')], ['Correo', e.emp_correo], ['Producción o inventario', d.actividad]]
           .map(function (r) { return '<tr><th>' + esc(r[0]) + '</th><td>' + esc(r[1]) + '</td></tr>'; }).join('') +
         '</tbody></table></div>';
       $('#resumen').innerHTML = h;
@@ -613,7 +556,7 @@
         'NIT': e.emp_nit, 'Empresa': e.emp_nombre, 'Representante legal': e.emp_rep, 'Identificación representante': e.emp_rep_id,
         'Teléfono': e.emp_tel, 'Celular': e.emp_cel, 'Fax': e.emp_fax, 'Dirección': e.emp_dir, 'Ciudad': e.emp_ciudad,
         'Diligenciado por': e.emp_dil, 'Cargo': e.emp_cargo, 'Correo': e.emp_correo, 'Fecha declarada': e.emp_fecha,
-        ['Reporta actividad ' + CONFIG.anio]: d.actividad, 'Observaciones': d.obs,
+        'Producción o inventario': d.actividad, 'Observaciones': d.obs,
         'Declaración': d.actividad === 'No' ? '' : (d.declaracion ? 'Acepto' : ''), 'Generado': generado,
       }];
       var activo = d.actividad !== 'No';
@@ -621,21 +564,12 @@
         return {
           'NIT': e.emp_nit, 'Empresa': e.emp_nombre, 'N°': i + 1, 'Categoría': catLabel(m.cat), 'Material': m.mat,
           'Cantidad bruta': numOrText(m.cant, 'int'), 'Densidad sugerida (palmas/ha)': numOrText(m.dens, 'dec'),
-          'Descarte sugerido (%)': numOrText(m.desc, 'dec'), 'Año': numOrText(m.anio, 'int'), 'Edad (meses)': numOrText(m.edad, 'dec'),
-          'Municipio de siembra': m.mun || '', 'Hectáreas sembradas': numOrText(m.ha, 'dec'), 'Observaciones': m.obs || '',
-        };
-      });
-      var ventas = (activo ? d.ventas : []).map(function (v, i) {
-        return {
-          'NIT vendedor': e.emp_nit, 'Empresa vendedora': e.emp_nombre, 'N°': i + 1, 'Año': numOrText(v.anio, 'int'),
-          'Comprador': v.razon, 'Identificación comprador': v.id, 'Teléfono comprador': v.tel, 'Material': v.mat,
-          'Cantidad bruta': numOrText(v.cant, 'int'), 'Departamento destino': v.dep, 'Municipio destino': v.mun,
-          'Tipo de comprador': v.tipo, 'Observaciones': v.obs || '',
+          'Descarte sugerido (%)': numOrText(m.desc, 'dec'), 'Año de producción': numOrText(m.anio, 'int'), 'Edad (meses)': numOrText(m.edad, 'dec'),
+          'Observaciones': m.obs || '',
         };
       });
       var headers = {
-        materiales: ['NIT', 'Empresa', 'N°', 'Categoría', 'Material', 'Cantidad bruta', 'Densidad sugerida (palmas/ha)', 'Descarte sugerido (%)', 'Año', 'Edad (meses)', 'Municipio de siembra', 'Hectáreas sembradas', 'Observaciones'],
-        ventas: ['NIT vendedor', 'Empresa vendedora', 'N°', 'Año', 'Comprador', 'Identificación comprador', 'Teléfono comprador', 'Material', 'Cantidad bruta', 'Departamento destino', 'Municipio destino', 'Tipo de comprador', 'Observaciones'],
+        materiales: ['NIT', 'Empresa', 'N°', 'Categoría', 'Material', 'Cantidad bruta', 'Densidad sugerida (palmas/ha)', 'Descarte sugerido (%)', 'Año de producción', 'Edad (meses)', 'Observaciones'],
       };
       var wb = XLSX.utils.book_new();
       function sheet(rows, header, name) {
@@ -645,7 +579,6 @@
       }
       sheet(empresa, null, 'Empresa');
       sheet(materiales, headers.materiales, 'Inventario y uso');
-      sheet(ventas, headers.ventas, 'Ventas');
       return wb;
     }
     // ---------- Envío ----------
@@ -657,10 +590,10 @@
       box.scrollIntoView({ block: 'center' });
     }
     $('#enviar').addEventListener('click', function () {
-      var steps = sinActividad() ? [0, 3] : [0, 1, 2, 3];
+      var steps = sinActividad() ? [0, 2] : [0, 1, 2];
       for (var i = 0; i < steps.length; i++) {
         if (!validateStep(steps[i])) {
-          if (steps[i] !== 3) { show(steps[i]); validateStep(steps[i]); }
+          if (steps[i] !== 2) { show(steps[i]); validateStep(steps[i]); }
           return;
         }
       }
@@ -678,7 +611,7 @@
           $('#radicado').textContent = res.radicado;
           try { localStorage.removeItem(STORE_KEY); } catch (e) { /* sin almacenamiento */ }
           $('#steps').hidden = true;
-          show(4);
+          show(3);
         })
         .catch(function () { showError('No hay conexión con el servidor. Sus respuestas siguen guardadas en este navegador; intente de nuevo en unos minutos.'); })
         .then(function () { btn.disabled = false; btn.textContent = 'Enviar respuestas'; });
