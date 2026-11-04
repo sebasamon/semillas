@@ -277,6 +277,7 @@
           </select><span class="error"></span></div>
         <div class="field full"><label>Variedad, material o tipo de semilla<span class="req">*</span> <span class="ejemplo">(ejemplo: Híbrido-Coari x La Mé - Fortuna)</span></label><input type="text" name="mat" required><span class="error"></span></div>
         <div class="field" data-only="prod pre viv"><label>Cantidad bruta en número de semillas, sin descartes<span class="req">*</span></label><input type="text" name="cant" required data-kind="int" data-min="0" inputmode="numeric"><span class="hint">Número entero.</span><span class="error"></span></div>
+        <div class="field" data-only="prod"><label>De esta semilla producida, ¿cuánta ya fue vendida o tiene vendida (por entregar)?<span class="req">*</span></label><input type="text" name="vend" required data-kind="int" data-min="0" data-lte="cant" inputmode="numeric"><span class="hint">Número de semillas. Escriba 0 si aún no ha vendido.</span><span class="error"></span></div>
         <div class="field" data-only="prod pre viv"><label>Densidad de siembra sugerida (palmas/ha)<span class="req">*</span></label><input type="text" name="dens" required data-kind="dec" data-gt="0" inputmode="decimal"><span class="error"></span></div>
         <div class="field" data-only="prod pre viv"><label>Porcentaje de descarte sugerido (%)<span class="req">*</span></label><input type="text" name="desc" required data-kind="dec" data-min="0" data-max="100" inputmode="decimal"><span class="hint">Entre 0 y 100. Ejemplo: 12,5</span><span class="error"></span></div>
         <div class="field" data-only="prod"><label>Año de producción<span class="req">*</span></label><input type="text" name="anio" required data-kind="int" data-min="2000" data-max="2026" inputmode="numeric"><span class="error"></span></div>
@@ -346,6 +347,11 @@
         if (el.dataset.gt != null && !(n > Number(el.dataset.gt))) return 'Debe ser mayor que ' + el.dataset.gt + '.';
         if (el.dataset.min != null && n < Number(el.dataset.min)) return 'Debe ser mayor o igual que ' + el.dataset.min + '.';
         if (el.dataset.max != null && n > Number(el.dataset.max)) return 'Debe ser menor o igual que ' + el.dataset.max + '.';
+        if (el.dataset.lte) {
+          var otro = $('[name="' + el.dataset.lte + '"]', el.closest('.item'));
+          var tope = otro ? parseNumber(otro.value, kind) : null;
+          if (tope != null && !isNaN(tope) && n > tope) return 'No puede ser mayor que la cantidad bruta producida (' + fmt.format(tope) + ').';
+        }
       }
       if (kind === 'nit' && !/^\d{5,12}-?\d$/.test(v.replace(/[.\s]/g, ''))) return 'Formato esperado: 123456789-0';
       if (kind === 'doc' && !/^[0-9A-Za-z.\-\s]{4,20}$/.test(v)) return 'Revise el número de identificación.';
@@ -534,6 +540,8 @@
         });
         h += '<div class="totals">';
         porCat.forEach(function (c) { h += '<div class="stat"><b>' + fmt.format(c.total) + '</b><span>' + esc(c.label) + ' · ' + c.n + ' registro(s)</span></div>'; });
+        var producidas = d.materiales.filter(function (m) { return m.cat === 'prod'; });
+        if (producidas.length) h += '<div class="stat"><b>' + fmt.format(sum(producidas, 'vend')) + '</b><span>De la producida en ' + CONFIG.anioProduccion + ': vendida o por entregar</span></div>';
         h += '</div>';
         if (!d.materiales.length) {
           h += '<p class="notice">Indicó que la empresa tiene producción o inventario, pero no registró materiales. Revise el paso 2.</p>';
@@ -564,13 +572,13 @@
       var materiales = (activo ? d.materiales : []).map(function (m, i) {
         return {
           'NIT': e.emp_nit, 'Empresa': e.emp_nombre, 'N°': i + 1, 'Categoría': catLabel(m.cat), 'Material': m.mat,
-          'Cantidad bruta': numOrText(m.cant, 'int'), 'Densidad sugerida (palmas/ha)': numOrText(m.dens, 'dec'),
+          'Cantidad bruta': numOrText(m.cant, 'int'), 'Vendida o vendida por entregar': numOrText(m.vend, 'int'), 'Densidad sugerida (palmas/ha)': numOrText(m.dens, 'dec'),
           'Descarte sugerido (%)': numOrText(m.desc, 'dec'), 'Año de producción': numOrText(m.anio, 'int'), 'Edad (meses)': numOrText(m.edad, 'dec'),
           'Observaciones': m.obs || '',
         };
       });
       var headers = {
-        materiales: ['NIT', 'Empresa', 'N°', 'Categoría', 'Material', 'Cantidad bruta', 'Densidad sugerida (palmas/ha)', 'Descarte sugerido (%)', 'Año de producción', 'Edad (meses)', 'Observaciones'],
+        materiales: ['NIT', 'Empresa', 'N°', 'Categoría', 'Material', 'Cantidad bruta', 'Vendida o vendida por entregar', 'Densidad sugerida (palmas/ha)', 'Descarte sugerido (%)', 'Año de producción', 'Edad (meses)', 'Observaciones'],
       };
       var wb = XLSX.utils.book_new();
       function sheet(rows, header, name) {

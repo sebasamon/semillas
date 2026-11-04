@@ -139,7 +139,9 @@
         [d.materiales.length, 'Registros de materiales'],
       ].concat(categorias(d.materiales).map(function (c) {
         return [fmt.format(sum(d.materiales.filter(function (m) { return m.categoria === c; }))), c + ' (semillas)'];
-      })).map(function (s) { return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'; }).join('');
+      })).concat(d.materiales.some(function (m) { return m.vendida != null; }) ? [[
+        fmt.format(d.materiales.reduce(function (a, m) { return a + (m.vendida || 0); }, 0)), 'De la producida: vendida o por entregar (semillas)',
+      ]] : []).map(function (s) { return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'; }).join('');
       $('#tabla').innerHTML = data.envios.slice().reverse().map(function (e) {
         return '<tr class="' + (ult[e.nit] === e.id ? '' : 'old') + '"><td>' + esc(hora(e.recibido)) + '</td><td>' + esc(e.id) + '</td><td>' + esc(e.nit) +
           '</td><td>' + esc(e.empresa) + '</td><td>' + esc(e.actividad) + '</td><td>' + cuenta(data.materiales, e.id) +
@@ -159,7 +161,7 @@
       };
       var mapM = function (m) {
         return { 'Radicado': m.envio_id, 'NIT': m.nit, 'Empresa': m.empresa, 'N°': m.n, 'Categoría': m.categoria, 'Material': m.material,
-          'Cantidad bruta': m.cantidad, 'Densidad sugerida (palmas/ha)': m.densidad, 'Descarte sugerido (%)': m.descarte, 'Año de producción': m.anio,
+          'Cantidad bruta': m.cantidad, 'Vendida o vendida por entregar': m.vendida, 'Densidad sugerida (palmas/ha)': m.densidad, 'Descarte sugerido (%)': m.descarte, 'Año de producción': m.anio,
           'Edad (meses)': m.edad, 'Observaciones': m.obs };
       };
       var wb = XLSX.utils.book_new();
