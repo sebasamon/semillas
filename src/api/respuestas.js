@@ -8,7 +8,7 @@ const MAX_MATERIALES = 300;
 const MAX_VENTAS = 1000;
 
 const CATS = {
-  prod: { label: `Semilla producida en ${ANIO_PRODUCCION}`, campos: ['cant', 'dens', 'desc', 'anio'] },
+  prod: { label: `Semilla producida en ${ANIO_PRODUCCION}`, campos: ['cant', 'vend', 'dens', 'desc', 'anio'] },
   pre: { label: 'Semilla en previvero para venta o entrega', campos: ['cant', 'dens', 'desc', 'edad'] },
   viv: { label: 'Semilla en vivero para venta o entrega', campos: ['cant', 'dens', 'desc', 'edad'] },
 };
@@ -98,11 +98,15 @@ function validar(d) {
     const cat = CATS[m.cat];
     if (!cat) { errores.push(`${donde}: tipo de registro no válido`); return null; }
     const usa = (c) => cat.campos.includes(c);
+    const cantidad = num(m.cant, `${donde}, cantidad`, 'int', { min: 0 });
+    const vendida = usa('vend') ? num(m.vend, `${donde}, vendida`, 'int', { min: 0 }) : null;
+    if (cantidad != null && vendida != null && vendida > cantidad) errores.push(`${donde}: la vendida supera la cantidad producida`);
     return {
       n: i + 1,
       categoria: cat.label,
       material: txt(m.mat, `${donde}, material`),
-      cantidad: num(m.cant, `${donde}, cantidad`, 'int', { min: 0 }),
+      cantidad,
+      vendida,
       densidad: usa('dens') ? num(m.dens, `${donde}, densidad`, 'dec', { gt: 0 }) : null,
       descarte: usa('desc') ? num(m.desc, `${donde}, descarte`, 'dec', { min: 0, max: 100 }) : null,
       anio: usa('anio') ? num(m.anio, `${donde}, año`, 'int', { min: 2000, max: ANIO }) : null,
