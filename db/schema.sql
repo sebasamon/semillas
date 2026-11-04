@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS materiales (
   categoria TEXT NOT NULL,
   material  TEXT NOT NULL,
   cantidad  INTEGER,
+  precio    INTEGER,                        -- valor de venta en COP: por semilla (producida) o por palma (previvero/vivero)
   vendida   INTEGER,                        -- de la producida: vendida o vendida por entregar
   densidad  REAL,
   descarte  REAL,
