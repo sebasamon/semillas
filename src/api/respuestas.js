@@ -8,9 +8,9 @@ const MAX_MATERIALES = 300;
 const MAX_VENTAS = 1000;
 
 const CATS = {
-  prod: { label: `Semilla producida en ${ANIO_PRODUCCION}`, campos: ['cant', 'vend', 'dens', 'desc', 'anio'] },
-  pre: { label: 'Semilla en previvero para venta o entrega', campos: ['cant', 'dens', 'desc', 'edad'] },
-  viv: { label: 'Semilla en vivero para venta o entrega', campos: ['cant', 'dens', 'desc', 'edad'] },
+  prod: { label: `Semilla producida en ${ANIO_PRODUCCION}`, campos: ['cant', 'precio', 'vend', 'dens', 'desc', 'anio'] },
+  pre: { label: 'Semilla en previvero para venta o entrega', campos: ['cant', 'precio', 'dens', 'desc', 'edad'] },
+  viv: { label: 'Semilla en vivero para venta o entrega', campos: ['cant', 'precio', 'dens', 'desc', 'edad'] },
 };
 const TIPOS = ['Intermediario', 'Cultivador de palma de aceite', 'Intermediario y cultivador'];
 const DEPARTAMENTOS = ['Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bogotá D.C.', 'Bolívar', 'Boyacá',
@@ -19,9 +19,9 @@ const DEPARTAMENTOS = ['Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bogotá
   'Quindío', 'Risaralda', 'San Andrés, Providencia y Santa Catalina', 'Santander', 'Sucre', 'Tolima',
   'Valle del Cauca', 'Vaupés', 'Vichada'];
 
-// Same rules as parseNumber() in encuesta-semillas.html: accepts "120.000" and "12,5".
+// Same rules as parseNumber() in encuesta-semillas.html: accepts "120.000", "12,5" and "$ 2.500".
 function parseNumber(raw, kind) {
-  let s = String(raw ?? '').trim().replace(/\s+/g, '');
+  let s = String(raw ?? '').trim().replace(/[\s$]+/g, '');
   if (!s) return null;
   if (kind === 'int') {
     if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
@@ -106,6 +106,7 @@ function validar(d) {
       categoria: cat.label,
       material: txt(m.mat, `${donde}, material`),
       cantidad,
+      precio: num(m.precio, `${donde}, valor de venta`, 'int', { gt: 0 }),
       vendida,
       densidad: usa('dens') ? num(m.dens, `${donde}, densidad`, 'dec', { gt: 0 }) : null,
       descarte: usa('desc') ? num(m.desc, `${donde}, descarte`, 'dec', { min: 0, max: 100 }) : null,
