@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS materiales (
   categoria TEXT NOT NULL,
   material  TEXT NOT NULL,
   cantidad  INTEGER,
+  vendida   INTEGER,                        -- de la producida: vendida o vendida por entregar
   densidad  REAL,
   descarte  REAL,
   anio      INTEGER,
