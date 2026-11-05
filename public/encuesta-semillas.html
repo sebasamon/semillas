@@ -298,8 +298,8 @@
 
     var CATS = [
       { id: 'prod', label: 'Semilla producida en ' + CONFIG.anioProduccion, unidad: 'semilla', precio: 'Valor de venta por semilla (pesos colombianos)' },
-      { id: 'pre', label: 'Plántulas en previvero para venta o entrega', unidad: 'plántula', precio: 'Valor de venta por palma (pesos colombianos)' },
-      { id: 'viv', label: 'Plántulas en vivero para venta o entrega', unidad: 'plántula', precio: 'Valor de venta por palma (pesos colombianos)' },
+      { id: 'pre', label: 'Plántulas en previvero para venta o entrega', unidad: 'plántula', precio: 'Valor de venta por plántula (pesos colombianos)' },
+      { id: 'viv', label: 'Plántulas en vivero para venta o entrega', unidad: 'plántula', precio: 'Valor de venta por plántula (pesos colombianos)' },
     ];
     var STORE_KEY = 'encuesta-semillas-' + CONFIG.anio;
     var EMP_FIELDS = ['emp_nombre', 'emp_nit', 'emp_rep', 'emp_rep_id', 'emp_tel', 'emp_cel', 'emp_fax', 'emp_ciudad',
@@ -578,13 +578,13 @@
       var materiales = (activo ? d.materiales : []).map(function (m, i) {
         return {
           'NIT': e.emp_nit, 'Empresa': e.emp_nombre, 'N°': i + 1, 'Categoría': catLabel(m.cat), 'Material': m.mat,
-          'Cantidad bruta': numOrText(m.cant, 'int'), 'Valor de venta (COP por semilla o palma)': numOrText(m.precio, 'int'), 'Vendida o vendida por entregar': numOrText(m.vend, 'int'), 'Densidad sugerida (palmas/ha)': numOrText(m.dens, 'dec'),
+          'Cantidad bruta': numOrText(m.cant, 'int'), 'Valor de venta (COP por semilla o plántula)': numOrText(m.precio, 'int'), 'Vendida o vendida por entregar': numOrText(m.vend, 'int'), 'Densidad sugerida (palmas/ha)': numOrText(m.dens, 'dec'),
           'Descarte sugerido (%)': numOrText(m.desc, 'dec'), 'Año de producción': numOrText(m.anio, 'int'), 'Edad (meses)': numOrText(m.edad, 'dec'),
           'Observaciones': m.obs || '',
         };
       });
       var headers = {
-        materiales: ['NIT', 'Empresa', 'N°', 'Categoría', 'Material', 'Cantidad bruta', 'Valor de venta (COP por semilla o palma)', 'Vendida o vendida por entregar', 'Densidad sugerida (palmas/ha)', 'Descarte sugerido (%)', 'Año de producción', 'Edad (meses)', 'Observaciones'],
+        materiales: ['NIT', 'Empresa', 'N°', 'Categoría', 'Material', 'Cantidad bruta', 'Valor de venta (COP por semilla o plántula)', 'Vendida o vendida por entregar', 'Densidad sugerida (palmas/ha)', 'Descarte sugerido (%)', 'Año de producción', 'Edad (meses)', 'Observaciones'],
       };
       var wb = XLSX.utils.book_new();
       function sheet(rows, header, name) {
