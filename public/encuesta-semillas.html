@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Encuesta de Semillas 2026</title>
-  <meta name="description" content="Encuesta a núcleos vendedores de semillas de palma de aceite, año calendario 2026 (SISPA).">
+  <meta name="description" content="Encuesta a núcleos vendedores de semillas y plántulas de palma de aceite, año calendario 2026 (SISPA).">
   <meta name="theme-color" content="#516228">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23516228'/%3E%3Cpath d='M12 20c0-4.5.4-8 2.6-10.6' stroke='%23eef1e3' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3Cpath fill='%23c7d650' d='M12 11.5c-3-1-5.6-.2-7.8 1.7 2.6.7 5.4.5 7.8-1.7zm0-2.3C10.8 6 8.5 4.3 5.5 3.8c.9 3 3.3 4.9 6.5 5.4z'/%3E%3Cpath fill='%23d8921e' d='M14.4 8.3C15.3 5.5 17.4 4 20.4 3.6c-.6 3-2.7 5-5.9 4.7z'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -151,7 +151,7 @@
       </div>
       <div>
         <div class="hero__org">Sistema de Información Estadística del Sector Palmero · SISPA</div>
-        <h1>Encuesta a núcleos vendedores de semillas de palma de aceite</h1>
+        <h1>Encuesta a núcleos vendedores de semillas y plántulas de palma de aceite</h1>
         <p>Año calendario <span data-anio>2026</span> · Tiempo estimado: 5 minutos</p>
       </div>
     </div>
@@ -198,7 +198,7 @@
 
           <h3>Actividad</h3>
           <div class="field" data-radio="emp_actividad">
-            <span class="legend">¿La empresa produjo semilla de palma de aceite en <span data-anio-prod>2025</span> o tiene semilla en previvero o vivero para venta o entrega?<span class="req">*</span></span>
+            <span class="legend">¿La empresa produjo semilla de palma de aceite en <span data-anio-prod>2025</span> o tiene plántulas en previvero o vivero para venta o entrega?<span class="req">*</span></span>
             <div class="choices" role="radiogroup">
               <label class="choice"><input type="radio" name="emp_actividad" value="Sí" required><span>Sí</span></label>
               <label class="choice"><input type="radio" name="emp_actividad" value="No"><span>No</span></label>
@@ -214,7 +214,7 @@
       <section class="step" data-step="1" hidden>
         <div class="panel">
           <h2>Producción e inventario</h2>
-          <p class="lead">Agregue un registro por cada variedad o material y categoría: semilla producida en <span data-anio-prod>2025</span>, en previvero o en vivero. Puede agregar todos los que necesite.</p>
+          <p class="lead">Agregue un registro por cada variedad o material y categoría: semilla producida en <span data-anio-prod>2025</span>, plántulas en previvero o en vivero. Puede agregar todos los que necesite.</p>
           <div id="materiales"></div>
           <div class="empty" id="materiales-vacio">Aún no hay materiales registrados. Use "+ Agregar material" para registrar la producción o el inventario.</div>
           <button type="button" class="btn btn--accent" id="add-material">+ Agregar material</button>
@@ -275,8 +275,8 @@
           <select name="cat" required>
             <option value="">Seleccione…</option>
           </select><span class="error"></span></div>
-        <div class="field full"><label>Variedad, material o tipo de semilla<span class="req">*</span> <span class="ejemplo">(ejemplo: Híbrido-Coari x La Mé - Fortuna)</span></label><input type="text" name="mat" required><span class="error"></span></div>
-        <div class="field" data-only="prod pre viv"><label>Cantidad bruta en número de semillas, sin descartes<span class="req">*</span></label><input type="text" name="cant" required data-kind="int" data-min="0" inputmode="numeric"><span class="hint">Número entero.</span><span class="error"></span></div>
+        <div class="field full"><label data-label="mat">Variedad, material o tipo de semilla<span class="req">*</span> <span class="ejemplo">(ejemplo: Híbrido-Coari x La Mé - Fortuna)</span></label><input type="text" name="mat" required><span class="error"></span></div>
+        <div class="field" data-only="prod pre viv"><label data-label="cant">Cantidad bruta en número de semillas, sin descartes<span class="req">*</span></label><input type="text" name="cant" required data-kind="int" data-min="0" inputmode="numeric"><span class="hint">Número entero.</span><span class="error"></span></div>
         <div class="field" data-only="prod pre viv"><label data-label="precio">Valor de venta<span class="req">*</span></label><input type="text" name="precio" required data-kind="int" data-gt="0" inputmode="numeric"><span class="hint">En pesos colombianos, sin decimales. Ejemplo: 2.500</span><span class="error"></span></div>
         <div class="field" data-only="prod"><label>De esta semilla producida, ¿cuánta ya fue vendida o tiene vendida (por entregar)?<span class="req">*</span></label><input type="text" name="vend" required data-kind="int" data-min="0" data-lte="cant" inputmode="numeric"><span class="hint">Número de semillas. Escriba 0 si aún no ha vendido.</span><span class="error"></span></div>
         <div class="field" data-only="prod pre viv"><label>Densidad de siembra sugerida (palmas/ha)<span class="req">*</span></label><input type="text" name="dens" required data-kind="dec" data-gt="0" inputmode="decimal"><span class="error"></span></div>
@@ -297,9 +297,9 @@
     var CONFIG = { anio: 2026, anioProduccion: 2025, api: 'api/respuestas' };
 
     var CATS = [
-      { id: 'prod', label: 'Semilla producida en ' + CONFIG.anioProduccion, precio: 'Valor de venta por semilla (pesos colombianos)' },
-      { id: 'pre', label: 'Semilla en previvero para venta o entrega', precio: 'Valor de venta por palma (pesos colombianos)' },
-      { id: 'viv', label: 'Semilla en vivero para venta o entrega', precio: 'Valor de venta por palma (pesos colombianos)' },
+      { id: 'prod', label: 'Semilla producida en ' + CONFIG.anioProduccion, unidad: 'semilla', precio: 'Valor de venta por semilla (pesos colombianos)' },
+      { id: 'pre', label: 'Plántulas en previvero para venta o entrega', unidad: 'plántula', precio: 'Valor de venta por palma (pesos colombianos)' },
+      { id: 'viv', label: 'Plántulas en vivero para venta o entrega', unidad: 'plántula', precio: 'Valor de venta por palma (pesos colombianos)' },
     ];
     var STORE_KEY = 'encuesta-semillas-' + CONFIG.anio;
     var EMP_FIELDS = ['emp_nombre', 'emp_nit', 'emp_rep', 'emp_rep_id', 'emp_tel', 'emp_cel', 'emp_fax', 'emp_ciudad',
@@ -412,6 +412,9 @@
         if (f.hidden) setError(f, '');
       });
       var meta = CATS.filter(function (c) { return c.id === cat; })[0];
+      var unidad = meta ? meta.unidad : 'semilla';
+      $('[data-label=mat]', item).firstChild.textContent = 'Variedad, material o tipo de ' + unidad;
+      $('[data-label=cant]', item).firstChild.textContent = 'Cantidad bruta en número de ' + unidad + 's, sin descartes';
       if (meta) $('[data-label=precio]', item).firstChild.textContent = meta.precio;
       var anio = $('input[name=anio]', item);
       if (cat === 'prod' && !anio.value) anio.value = CONFIG.anioProduccion;
@@ -535,7 +538,7 @@
       var h = '';
       $('#declaracion-wrap').hidden = d.actividad === 'No';
       if (d.actividad === 'No') {
-        h += '<p class="notice">La empresa indicó que no tiene producción ni inventario de semilla para reportar. Envíe la encuesta para dejar constancia.</p>';
+        h += '<p class="notice">La empresa indicó que no tiene producción de semilla ni inventario de plántulas para reportar. Envíe la encuesta para dejar constancia.</p>';
       } else {
         var porCat = CATS.map(function (c) {
           var items = d.materiales.filter(function (m) { return m.cat === c.id; });

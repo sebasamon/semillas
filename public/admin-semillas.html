@@ -138,7 +138,7 @@
         [d.envios.filter(function (e) { return e.actividad === 'No'; }).length, 'Sin producción ni inventario'],
         [d.materiales.length, 'Registros de materiales'],
       ].concat(categorias(d.materiales).map(function (c) {
-        return [fmt.format(sum(d.materiales.filter(function (m) { return m.categoria === c; }))), c + ' (semillas)'];
+        return [fmt.format(sum(d.materiales.filter(function (m) { return m.categoria === c; }))), c + (/vivero/.test(c) ? ' (plántulas)' : ' (semillas)')];
       })).concat(d.materiales.some(function (m) { return m.vendida != null; }) ? [[
         fmt.format(d.materiales.reduce(function (a, m) { return a + (m.vendida || 0); }, 0)), 'De la producida: vendida o por entregar (semillas)',
       ]] : []).map(function (s) { return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'; }).join('');
