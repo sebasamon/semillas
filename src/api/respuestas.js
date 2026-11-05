@@ -9,8 +9,8 @@ const MAX_VENTAS = 1000;
 
 const CATS = {
   prod: { label: `Semilla producida en ${ANIO_PRODUCCION}`, campos: ['cant', 'precio', 'vend', 'dens', 'desc', 'anio'] },
-  pre: { label: 'Semilla en previvero para venta o entrega', campos: ['cant', 'precio', 'dens', 'desc', 'edad'] },
-  viv: { label: 'Semilla en vivero para venta o entrega', campos: ['cant', 'precio', 'dens', 'desc', 'edad'] },
+  pre: { label: 'Plántulas en previvero para venta o entrega', campos: ['cant', 'precio', 'dens', 'desc', 'edad'] },
+  viv: { label: 'Plántulas en vivero para venta o entrega', campos: ['cant', 'precio', 'dens', 'desc', 'edad'] },
 };
 const TIPOS = ['Intermediario', 'Cultivador de palma de aceite', 'Intermediario y cultivador'];
 const DEPARTAMENTOS = ['Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bogotá D.C.', 'Bolívar', 'Boyacá',
