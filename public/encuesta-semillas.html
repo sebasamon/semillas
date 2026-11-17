@@ -204,15 +204,16 @@
               <label class="choice"><input type="radio" name="emp_produjo" value="Sí" required><span>Sí</span></label>
               <label class="choice"><input type="radio" name="emp_produjo" value="No"><span>No</span></label>
             </div>
+            <span class="hint">Si responde "Sí", continuará a Producción e inventario, donde puede registrar semilla producida y plántulas.</span>
             <span class="error"></span>
           </div>
-          <div class="field" data-radio="emp_plantulas" style="margin-top:16px">
+          <div class="field" data-radio="emp_plantulas" id="pregunta-plantulas" style="margin-top:16px" hidden>
             <span class="legend">¿La empresa tiene plántulas en previvero (hasta 3 meses) o vivero (hasta 9 meses) para venta o entrega?<span class="req">*</span></span>
             <div class="choices" role="radiogroup">
               <label class="choice"><input type="radio" name="emp_plantulas" value="Sí" required><span>Sí</span></label>
               <label class="choice"><input type="radio" name="emp_plantulas" value="No"><span>No</span></label>
             </div>
-            <span class="hint">Si responde "No" a las dos preguntas, pasará directamente al final de la encuesta.</span>
+            <span class="hint">Si responde "No", pasará directamente al final de la encuesta.</span>
             <span class="error"></span>
           </div>
         </div>
@@ -383,6 +384,7 @@
         if (msg && !first) first = el;
       });
       $$('[data-radio]', section).forEach(function (f) {
+        if (f.hidden) return;
         var name = f.dataset.radio;
         var ok = !!$('input[name="' + name + '"]:checked', f);
         setError(f, ok ? '' : 'Seleccione una opción.');
@@ -440,7 +442,9 @@
     // Producida needs "Sí" to the first question; previvero/vivero need "Sí" to the second.
     function respuesta(name) { var r = $('input[name=' + name + ']:checked'); return r ? r.value : ''; }
     function catPermitida(id) {
-      return id === 'prod' ? respuesta('emp_produjo') !== 'No' : respuesta('emp_plantulas') !== 'No';
+      var produjo = respuesta('emp_produjo');
+      if (id === 'prod') return produjo !== 'No';
+      return produjo === 'Sí' || respuesta('emp_plantulas') !== 'No';
     }
     function refreshCats(item) {
       var sel = $('select[name=cat]', item);
@@ -473,8 +477,16 @@
       return item;
     }
     $('#add-material').addEventListener('click', function () { addItem(null, true); save(); });
+    function togglePlantulas() {
+      var pregunta = $('#pregunta-plantulas');
+      pregunta.hidden = respuesta('emp_produjo') !== 'No';
+      if (pregunta.hidden) {
+        $$('input[name=emp_plantulas]').forEach(function (r) { r.checked = false; });
+        setError(pregunta, '');
+      }
+    }
     $$('input[name=emp_produjo], input[name=emp_plantulas]').forEach(function (r) {
-      r.addEventListener('change', function () { $$('#materiales .item').forEach(refreshCats); });
+      r.addEventListener('change', function () { togglePlantulas(); $$('#materiales .item').forEach(refreshCats); });
     });
 
     // ---------- Estado ----------
@@ -490,12 +502,12 @@
     function collect() {
       var emp = {};
       EMP_FIELDS.forEach(function (k) { emp[k] = form.elements[k].value.trim(); });
-      var produjo = respuesta('emp_produjo'), plantulas = respuesta('emp_plantulas');
+      var produjo = respuesta('emp_produjo'), plantulas = produjo === 'No' ? respuesta('emp_plantulas') : '';
       return {
         empresa: emp,
         produjo: produjo,
         plantulas: plantulas,
-        actividad: produjo === 'Sí' || plantulas === 'Sí' ? 'Sí' : (produjo && plantulas ? 'No' : ''),
+        actividad: produjo === 'Sí' || plantulas === 'Sí' ? 'Sí' : (plantulas === 'No' ? 'No' : ''),
         materiales: readItems('#materiales'),
         obs: form.elements.obs_general.value.trim(),
         declaracion: form.elements.declaracion.checked,
@@ -516,6 +528,7 @@
         var r = x[1] && $('input[name=' + x[0] + '][value="' + x[1] + '"]');
         if (r) r.checked = true;
       });
+      togglePlantulas();
       (d.materiales || []).forEach(function (m) { addItem(m); });
       form.elements.obs_general.value = d.obs || '';
       form.elements.declaracion.checked = !!d.declaracion;
@@ -597,7 +610,7 @@
       }
       var e = d.empresa;
       h += '<div class="table-wrap"><table class="summary"><tbody>' +
-        [['Empresa', e.emp_nombre], ['NIT', e.emp_nit], ['Representante legal', e.emp_rep], ['Diligenciado por', e.emp_dil + (e.emp_cargo ? ' · ' + e.emp_cargo : '')], ['Correo', e.emp_correo], ['¿Produjo semilla en ' + CONFIG.anioProduccion + '?', d.produjo], ['¿Tiene plántulas en previvero o vivero?', d.plantulas]]
+        [['Empresa', e.emp_nombre], ['NIT', e.emp_nit], ['Representante legal', e.emp_rep], ['Diligenciado por', e.emp_dil + (e.emp_cargo ? ' · ' + e.emp_cargo : '')], ['Correo', e.emp_correo], ['¿Produjo semilla en ' + CONFIG.anioProduccion + '?', d.produjo], ['¿Tiene plántulas en previvero o vivero?', d.plantulas || 'No se preguntó (produjo semilla)']]
           .map(function (r) { return '<tr><th>' + esc(r[0]) + '</th><td>' + esc(r[1]) + '</td></tr>'; }).join('') +
         '</tbody></table></div>';
       $('#resumen').innerHTML = h;
@@ -611,7 +624,7 @@
       var generado = new Date().toLocaleString('es-CO');
       var empresa = [{
         'NIT': e.emp_nit, 'Empresa': e.emp_nombre, [$('[data-radio=emp_produjo] .legend').textContent.replace(/\*$/, '')]: d.produjo,
-        [$('[data-radio=emp_plantulas] .legend').textContent.replace(/\*$/, '')]: d.plantulas, 'Representante legal': e.emp_rep, 'Identificación representante': e.emp_rep_id,
+        [$('[data-radio=emp_plantulas] .legend').textContent.replace(/\*$/, '')]: d.plantulas || 'No se preguntó (produjo semilla)', 'Representante legal': e.emp_rep, 'Identificación representante': e.emp_rep_id,
         'Teléfono': e.emp_tel, 'Celular': e.emp_cel, 'Fax': e.emp_fax, 'Dirección': e.emp_dir, 'Ciudad': e.emp_ciudad,
         'Diligenciado por': e.emp_dil, 'Cargo': e.emp_cargo, 'Correo': e.emp_correo, 'Fecha declarada': e.emp_fecha,
         'Observaciones': d.obs,

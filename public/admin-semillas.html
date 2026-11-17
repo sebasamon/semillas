@@ -150,7 +150,7 @@
       ]] : []).map(function (s) { return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'; }).join('');
       $('#tabla').innerHTML = data.envios.slice().reverse().map(function (e) {
         return '<tr class="' + (ult[e.nit] === e.id ? '' : 'old') + '"><td>' + esc(hora(e.recibido)) + '</td><td>' + esc(e.id) + '</td><td>' + esc(e.nit) +
-          '</td><td>' + esc(e.empresa) + '</td><td>' + esc(e.produjo) + '</td><td>' + esc(e.plantulas) + '</td><td>' + cuenta(data.materiales, e.id) +
+          '</td><td>' + esc(e.empresa) + '</td><td>' + esc(e.produjo) + '</td><td>' + esc(e.plantulas || (e.produjo === 'Sí' ? 'No se preguntó' : '')) + '</td><td>' + cuenta(data.materiales, e.id) +
           '</td><td>' + esc(e.dil) + '</td></tr>';
       }).join('') || '<tr><td colspan="8">Aún no hay respuestas.</td></tr>';
     }
@@ -160,7 +160,7 @@
       var ult = vigentes();
       var mapE = function (e) {
         return { 'Radicado': e.id, 'Recibido (hora Colombia)': hora(e.recibido), 'Envío vigente': ult[e.nit] === e.id ? 'Sí' : 'No',
-          'NIT': e.nit, 'Empresa': e.empresa, [PREGUNTA_PRODUJO]: e.produjo, [PREGUNTA_PLANTULAS]: e.plantulas, 'Representante legal': e.rep, 'Identificación representante': e.rep_id,
+          'NIT': e.nit, 'Empresa': e.empresa, [PREGUNTA_PRODUJO]: e.produjo, [PREGUNTA_PLANTULAS]: e.plantulas || (e.produjo === 'Sí' ? 'No se preguntó (produjo semilla)' : ''), 'Representante legal': e.rep, 'Identificación representante': e.rep_id,
           'Teléfono': e.tel, 'Celular': e.cel, 'Fax': e.fax, 'Dirección': e.direccion, 'Ciudad': e.ciudad,
           'Diligenciado por': e.dil, 'Cargo': e.cargo, 'Correo': e.correo, 'Fecha declarada': e.fecha,
           'Observaciones': e.obs, 'Declaración': e.declaracion ? 'Acepto' : '' };
