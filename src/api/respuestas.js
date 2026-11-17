@@ -65,8 +65,8 @@ function validar(d) {
   const correo = txt(e.emp_correo, 'Correo', { max: 200 });
   if (correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) errores.push('Correo: formato no válido');
   const produjo = oneOf(d.produjo, ['Sí', 'No'], '¿Produjo semilla?');
-  const plantulas = oneOf(d.plantulas, ['Sí', 'No'], '¿Tiene plántulas?');
-  // "Sí" when the company answered yes to either question.
+  // The seedlings question is only asked when the company did not produce seed.
+  const plantulas = produjo === 'No' ? oneOf(d.plantulas, ['Sí', 'No'], '¿Tiene plántulas?') : null;
   const actividad = produjo === 'Sí' || plantulas === 'Sí' ? 'Sí' : 'No';
 
   const envio = {
@@ -102,7 +102,7 @@ function validar(d) {
     const donde = `Material ${i + 1}`;
     const cat = CATS[m.cat];
     if (!cat) { errores.push(`${donde}: tipo de registro no válido`); return null; }
-    if ((m.cat === 'prod' && produjo !== 'Sí') || (m.cat !== 'prod' && plantulas !== 'Sí')) {
+    if ((m.cat === 'prod' && produjo !== 'Sí') || (m.cat !== 'prod' && actividad !== 'Sí')) {
       errores.push(`${donde}: el tipo de registro no corresponde a las respuestas iniciales`);
     }
     const usa = (c) => cat.campos.includes(c);
