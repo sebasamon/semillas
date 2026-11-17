@@ -140,6 +140,7 @@
     .trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
     .notice ul { margin: 6px 0 0; padding-left: 20px; }
     .btn:disabled { opacity: .6; cursor: wait; }
+    footer a, .notice a, .lead a { color: var(--olive-dark); font-weight: 600; }
     footer { text-align: center; color: var(--muted); font-size: 12.5px; padding: 0 16px 32px; }
   </style>
 </head>
@@ -197,13 +198,21 @@
           </div>
 
           <h3>Actividad</h3>
-          <div class="field" data-radio="emp_actividad">
-            <span class="legend">¿La empresa produjo semilla de palma de aceite en <span data-anio-prod>2026</span> o tiene plántulas en previvero o vivero para venta o entrega?<span class="req">*</span></span>
+          <div class="field" data-radio="emp_produjo">
+            <span class="legend">¿La empresa produjo semilla de palma de aceite en <span data-anio-prod>2026</span>?<span class="req">*</span></span>
             <div class="choices" role="radiogroup">
-              <label class="choice"><input type="radio" name="emp_actividad" value="Sí" required><span>Sí</span></label>
-              <label class="choice"><input type="radio" name="emp_actividad" value="No"><span>No</span></label>
+              <label class="choice"><input type="radio" name="emp_produjo" value="Sí" required><span>Sí</span></label>
+              <label class="choice"><input type="radio" name="emp_produjo" value="No"><span>No</span></label>
             </div>
-            <span class="hint">Si responde "No", pasará directamente a la revisión y envío.</span>
+            <span class="error"></span>
+          </div>
+          <div class="field" data-radio="emp_plantulas" style="margin-top:16px">
+            <span class="legend">¿La empresa tiene plántulas en previvero (hasta 3 meses) o vivero (hasta 9 meses) para venta o entrega?<span class="req">*</span></span>
+            <div class="choices" role="radiogroup">
+              <label class="choice"><input type="radio" name="emp_plantulas" value="Sí" required><span>Sí</span></label>
+              <label class="choice"><input type="radio" name="emp_plantulas" value="No"><span>No</span></label>
+            </div>
+            <span class="hint">Si responde "No" a las dos preguntas, pasará directamente al final de la encuesta.</span>
             <span class="error"></span>
           </div>
         </div>
@@ -214,7 +223,7 @@
       <section class="step" data-step="1" hidden>
         <div class="panel">
           <h2>Producción e inventario</h2>
-          <p class="lead">Agregue un registro por cada variedad o material y categoría: semilla producida en <span data-anio-prod>2026</span>, plántulas en previvero o en vivero. Puede agregar todos los que necesite.</p>
+          <p class="lead">Agregue un registro por cada variedad o material y categoría: semilla producida en <span data-anio-prod>2026</span>, plántulas en previvero (hasta 3 meses) o en vivero (hasta 9 meses). Puede agregar todos los que necesite.</p>
           <div id="materiales"></div>
           <div class="empty" id="materiales-vacio">Aún no hay materiales registrados. Use "+ Agregar material" para registrar la producción o el inventario.</div>
           <button type="button" class="btn btn--accent" id="add-material">+ Agregar material</button>
@@ -255,7 +264,7 @@
         <div class="panel">
           <h2>¡Gracias! Sus respuestas fueron recibidas</h2>
           <p class="notice notice--ok">Número de radicado: <b id="radicado"></b>. Guárdelo como constancia del envío.</p>
-          <p class="lead">Si necesita corregir algo, diligencie la encuesta de nuevo con el mismo NIT: se tomará el envío más reciente.</p>
+          <p class="lead">Si necesita corregir algo, diligencie la encuesta de nuevo con el mismo NIT: se tomará el envío más reciente. Para cualquier duda escriba a <a href="mailto:rcastellanos@fedepalma.org">rcastellanos@fedepalma.org</a>.</p>
           <div class="nav" style="justify-content:flex-start">
             <button type="button" class="btn btn--ghost" id="copia">Descargar copia de mis respuestas (Excel)</button>
             <button type="button" class="btn btn--accent" id="nueva">Diligenciar otra encuesta</button>
@@ -265,7 +274,7 @@
     </form>
   </main>
 
-  <footer>Encuesta de Semillas · SISPA. La información se usa con fines estadísticos del sector palmero.</footer>
+  <footer>Encuesta de Semillas · SISPA. La información se usa con fines estadísticos del sector palmero. Dudas: <a href="mailto:rcastellanos@fedepalma.org">rcastellanos@fedepalma.org</a></footer>
 
   <template id="tpl-material">
     <div class="item" data-item="material">
@@ -428,6 +437,19 @@
       items.forEach(function (it, i) { $('.item__title', it).textContent = 'Material ' + (i + 1); });
       $('#materiales-vacio').hidden = items.length > 0;
     }
+    // Producida needs "Sí" to the first question; previvero/vivero need "Sí" to the second.
+    function respuesta(name) { var r = $('input[name=' + name + ']:checked'); return r ? r.value : ''; }
+    function catPermitida(id) {
+      return id === 'prod' ? respuesta('emp_produjo') !== 'No' : respuesta('emp_plantulas') !== 'No';
+    }
+    function refreshCats(item) {
+      var sel = $('select[name=cat]', item);
+      $$('option', sel).forEach(function (o) {
+        if (!o.value) return;
+        o.hidden = o.disabled = !catPermitida(o.value);
+      });
+      if (sel.value && !catPermitida(sel.value)) { sel.value = ''; applyCategory(item); }
+    }
     function addItem(data, focus) {
       var tpl = $('#tpl-material').content.cloneNode(true);
       var item = $('.item', tpl);
@@ -444,12 +466,16 @@
         save();
       });
       $('#materiales').appendChild(item);
+      refreshCats(item);
       applyCategory(item);
       renumber();
       if (focus) { item.scrollIntoView({ block: 'start' }); $('select, input', item).focus({ preventScroll: true }); }
       return item;
     }
     $('#add-material').addEventListener('click', function () { addItem(null, true); save(); });
+    $$('input[name=emp_produjo], input[name=emp_plantulas]').forEach(function (r) {
+      r.addEventListener('change', function () { $$('#materiales .item').forEach(refreshCats); });
+    });
 
     // ---------- Estado ----------
     function readItems(listSel) {
@@ -464,10 +490,12 @@
     function collect() {
       var emp = {};
       EMP_FIELDS.forEach(function (k) { emp[k] = form.elements[k].value.trim(); });
-      var act = $('input[name=emp_actividad]:checked');
+      var produjo = respuesta('emp_produjo'), plantulas = respuesta('emp_plantulas');
       return {
         empresa: emp,
-        actividad: act ? act.value : '',
+        produjo: produjo,
+        plantulas: plantulas,
+        actividad: produjo === 'Sí' || plantulas === 'Sí' ? 'Sí' : (produjo && plantulas ? 'No' : ''),
         materiales: readItems('#materiales'),
         obs: form.elements.obs_general.value.trim(),
         declaracion: form.elements.declaracion.checked,
@@ -484,7 +512,10 @@
         return;
       }
       EMP_FIELDS.forEach(function (k) { if (d.empresa && d.empresa[k] != null) form.elements[k].value = d.empresa[k]; });
-      if (d.actividad) { var r = $('input[name=emp_actividad][value="' + d.actividad + '"]'); if (r) r.checked = true; }
+      [['emp_produjo', d.produjo], ['emp_plantulas', d.plantulas]].forEach(function (x) {
+        var r = x[1] && $('input[name=' + x[0] + '][value="' + x[1] + '"]');
+        if (r) r.checked = true;
+      });
       (d.materiales || []).forEach(function (m) { addItem(m); });
       form.elements.obs_general.value = d.obs || '';
       form.elements.declaracion.checked = !!d.declaracion;
@@ -494,7 +525,7 @@
     form.addEventListener('change', save);
 
     // ---------- Navegación ----------
-    function sinActividad() { var a = $('input[name=emp_actividad]:checked'); return a && a.value === 'No'; }
+    function sinActividad() { return respuesta('emp_produjo') === 'No' && respuesta('emp_plantulas') === 'No'; }
     function show(step) {
       current = step;
       $$('.step').forEach(function (s) { s.hidden = Number(s.dataset.step) !== step; });
@@ -542,9 +573,10 @@
       var h = '';
       $('#declaracion-wrap').hidden = d.actividad === 'No';
       if (d.actividad === 'No') {
-        h += '<p class="notice">La empresa indicó que no tiene producción de semilla ni inventario de plántulas para reportar. Envíe la encuesta para dejar constancia.</p>';
+        h += '<p class="notice">La empresa indicó que no produjo semilla en ' + CONFIG.anioProduccion + ' y que no tiene plántulas en previvero ni vivero. ' +
+          'Pulse "Enviar respuestas" para dejar constancia. Para cualquier duda escriba a <a href="mailto:rcastellanos@fedepalma.org">rcastellanos@fedepalma.org</a>.</p>';
       } else {
-        var porCat = CATS.map(function (c) {
+        var porCat = CATS.filter(function (c) { return catPermitida(c.id); }).map(function (c) {
           var items = d.materiales.filter(function (m) { return m.cat === c.id; });
           return { label: c.label, n: items.length, total: sum(items, 'cant') };
         });
@@ -554,12 +586,18 @@
         if (producidas.length) h += '<div class="stat"><b>' + fmt.format(sum(producidas, 'vend')) + '</b><span>De la producida en ' + CONFIG.anioProduccion + ': vendida o por entregar</span></div>';
         h += '</div>';
         if (!d.materiales.length) {
-          h += '<p class="notice">Indicó que la empresa tiene producción o inventario, pero no registró materiales. Revise el paso 2.</p>';
+          h += '<p class="notice">Indicó que la empresa tiene producción o plántulas, pero no registró materiales. Revise el paso 2.</p>';
+        }
+        if (d.produjo === 'Sí' && !d.materiales.some(function (m) { return m.cat === 'prod'; })) {
+          h += '<p class="notice">Indicó que la empresa produjo semilla en ' + CONFIG.anioProduccion + ', pero no registró ningún material de semilla producida.</p>';
+        }
+        if (d.plantulas === 'Sí' && !d.materiales.some(function (m) { return m.cat === 'pre' || m.cat === 'viv'; })) {
+          h += '<p class="notice">Indicó que la empresa tiene plántulas, pero no registró ningún material en previvero o vivero.</p>';
         }
       }
       var e = d.empresa;
       h += '<div class="table-wrap"><table class="summary"><tbody>' +
-        [['Empresa', e.emp_nombre], ['NIT', e.emp_nit], ['Representante legal', e.emp_rep], ['Diligenciado por', e.emp_dil + (e.emp_cargo ? ' · ' + e.emp_cargo : '')], ['Correo', e.emp_correo], ['Producción o inventario', d.actividad]]
+        [['Empresa', e.emp_nombre], ['NIT', e.emp_nit], ['Representante legal', e.emp_rep], ['Diligenciado por', e.emp_dil + (e.emp_cargo ? ' · ' + e.emp_cargo : '')], ['Correo', e.emp_correo], ['¿Produjo semilla en ' + CONFIG.anioProduccion + '?', d.produjo], ['¿Tiene plántulas en previvero o vivero?', d.plantulas]]
           .map(function (r) { return '<tr><th>' + esc(r[0]) + '</th><td>' + esc(r[1]) + '</td></tr>'; }).join('') +
         '</tbody></table></div>';
       $('#resumen').innerHTML = h;
@@ -572,7 +610,8 @@
       var e = d.empresa;
       var generado = new Date().toLocaleString('es-CO');
       var empresa = [{
-        'NIT': e.emp_nit, 'Empresa': e.emp_nombre, [$('[data-radio=emp_actividad] .legend').textContent.replace(/\*$/, '')]: d.actividad, 'Representante legal': e.emp_rep, 'Identificación representante': e.emp_rep_id,
+        'NIT': e.emp_nit, 'Empresa': e.emp_nombre, [$('[data-radio=emp_produjo] .legend').textContent.replace(/\*$/, '')]: d.produjo,
+        [$('[data-radio=emp_plantulas] .legend').textContent.replace(/\*$/, '')]: d.plantulas, 'Representante legal': e.emp_rep, 'Identificación representante': e.emp_rep_id,
         'Teléfono': e.emp_tel, 'Celular': e.emp_cel, 'Fax': e.emp_fax, 'Dirección': e.emp_dir, 'Ciudad': e.emp_ciudad,
         'Diligenciado por': e.emp_dil, 'Cargo': e.emp_cargo, 'Correo': e.emp_correo, 'Fecha declarada': e.emp_fecha,
         'Observaciones': d.obs,

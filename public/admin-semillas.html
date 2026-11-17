@@ -66,7 +66,7 @@
       </div>
       <div class="panel">
         <h2 style="margin:0 0 10px;font-size:17px;color:var(--olive-dark)">Envíos recibidos</h2>
-        <div class="wrap"><table><thead><tr><th>Recibido (hora Colombia)</th><th>Radicado</th><th>NIT</th><th>Empresa</th><th title="¿Produjo semilla en 2026 o tiene plántulas en previvero o vivero?">¿Produjo semilla o tiene plántulas?</th><th>Materiales</th><th>Diligenció</th></tr></thead><tbody id="tabla"></tbody></table></div>
+        <div class="wrap"><table><thead><tr><th>Recibido (hora Colombia)</th><th>Radicado</th><th>NIT</th><th>Empresa</th><th>¿Produjo semilla en 2026?</th><th>¿Tiene plántulas?</th><th>Materiales</th><th>Diligenció</th></tr></thead><tbody id="tabla"></tbody></table></div>
       </div>
     </div>
   </main>
@@ -80,7 +80,8 @@
   (function () {
     'use strict';
     var KEY = 'admin-semillas-clave';
-    var PREGUNTA_ACTIVIDAD = '¿La empresa produjo semilla de palma de aceite en 2026 o tiene plántulas en previvero o vivero para venta o entrega?';
+    var PREGUNTA_PRODUJO = '¿La empresa produjo semilla de palma de aceite en 2026?';
+    var PREGUNTA_PLANTULAS = '¿La empresa tiene plántulas en previvero (hasta 3 meses) o vivero (hasta 9 meses) para venta o entrega?';
     var $ = function (s) { return document.querySelector(s); };
     var data = null;
 
@@ -140,7 +141,7 @@
       $('#stats').innerHTML = [
         [empresas, 'Empresas (NIT distintos)'],
         [data.envios.length, 'Envíos recibidos en total'],
-        [d.envios.filter(function (e) { return e.actividad === 'No'; }).length, 'Sin producción ni inventario'],
+        [d.envios.filter(function (e) { return e.actividad === 'No'; }).length, 'No produjo semilla ni tiene plántulas'],
         [d.materiales.length, 'Registros de materiales'],
       ].concat(categorias(d.materiales).map(function (c) {
         return [fmt.format(sum(d.materiales.filter(function (m) { return m.categoria === c; }))), c + (/vivero/.test(c) ? ' (plántulas)' : ' (semillas)')];
@@ -149,9 +150,9 @@
       ]] : []).map(function (s) { return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'; }).join('');
       $('#tabla').innerHTML = data.envios.slice().reverse().map(function (e) {
         return '<tr class="' + (ult[e.nit] === e.id ? '' : 'old') + '"><td>' + esc(hora(e.recibido)) + '</td><td>' + esc(e.id) + '</td><td>' + esc(e.nit) +
-          '</td><td>' + esc(e.empresa) + '</td><td>' + esc(e.actividad) + '</td><td>' + cuenta(data.materiales, e.id) +
+          '</td><td>' + esc(e.empresa) + '</td><td>' + esc(e.produjo) + '</td><td>' + esc(e.plantulas) + '</td><td>' + cuenta(data.materiales, e.id) +
           '</td><td>' + esc(e.dil) + '</td></tr>';
-      }).join('') || '<tr><td colspan="7">Aún no hay respuestas.</td></tr>';
+      }).join('') || '<tr><td colspan="8">Aún no hay respuestas.</td></tr>';
     }
 
     function excel() {
@@ -159,7 +160,7 @@
       var ult = vigentes();
       var mapE = function (e) {
         return { 'Radicado': e.id, 'Recibido (hora Colombia)': hora(e.recibido), 'Envío vigente': ult[e.nit] === e.id ? 'Sí' : 'No',
-          'NIT': e.nit, 'Empresa': e.empresa, [PREGUNTA_ACTIVIDAD]: e.actividad, 'Representante legal': e.rep, 'Identificación representante': e.rep_id,
+          'NIT': e.nit, 'Empresa': e.empresa, [PREGUNTA_PRODUJO]: e.produjo, [PREGUNTA_PLANTULAS]: e.plantulas, 'Representante legal': e.rep, 'Identificación representante': e.rep_id,
           'Teléfono': e.tel, 'Celular': e.cel, 'Fax': e.fax, 'Dirección': e.direccion, 'Ciudad': e.ciudad,
           'Diligenciado por': e.dil, 'Cargo': e.cargo, 'Correo': e.correo, 'Fecha declarada': e.fecha,
           'Observaciones': e.obs, 'Declaración': e.declaracion ? 'Acepto' : '' };
