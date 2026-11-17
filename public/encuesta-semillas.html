@@ -198,7 +198,7 @@
 
           <h3>Actividad</h3>
           <div class="field" data-radio="emp_actividad">
-            <span class="legend">¿La empresa produjo semilla de palma de aceite en <span data-anio-prod>2025</span> o tiene plántulas en previvero o vivero para venta o entrega?<span class="req">*</span></span>
+            <span class="legend">¿La empresa produjo semilla de palma de aceite en <span data-anio-prod>2026</span> o tiene plántulas en previvero o vivero para venta o entrega?<span class="req">*</span></span>
             <div class="choices" role="radiogroup">
               <label class="choice"><input type="radio" name="emp_actividad" value="Sí" required><span>Sí</span></label>
               <label class="choice"><input type="radio" name="emp_actividad" value="No"><span>No</span></label>
@@ -214,7 +214,7 @@
       <section class="step" data-step="1" hidden>
         <div class="panel">
           <h2>Producción e inventario</h2>
-          <p class="lead">Agregue un registro por cada variedad o material y categoría: semilla producida en <span data-anio-prod>2025</span>, plántulas en previvero o en vivero. Puede agregar todos los que necesite.</p>
+          <p class="lead">Agregue un registro por cada variedad o material y categoría: semilla producida en <span data-anio-prod>2026</span>, plántulas en previvero o en vivero. Puede agregar todos los que necesite.</p>
           <div id="materiales"></div>
           <div class="empty" id="materiales-vacio">Aún no hay materiales registrados. Use "+ Agregar material" para registrar la producción o el inventario.</div>
           <button type="button" class="btn btn--accent" id="add-material">+ Agregar material</button>
@@ -294,7 +294,7 @@
     'use strict';
 
     // Ajustes de la operación. Las respuestas se envían a la función de Cloudflare en functions/api/respuestas.js.
-    var CONFIG = { anio: 2026, anioProduccion: 2025, api: 'api/respuestas' };
+    var CONFIG = { anio: 2026, anioProduccion: 2026, api: 'api/respuestas' };
 
     var CATS = [
       { id: 'prod', label: 'Semilla producida en ' + CONFIG.anioProduccion, unidad: 'semilla', precio: 'Valor de venta por semilla (pesos colombianos)' },
