@@ -64,7 +64,10 @@ function validar(d) {
   if (nit && !/^\d{5,12}-?\d$/.test(nit.replace(/[.\s]/g, ''))) errores.push('NIT: formato no válido');
   const correo = txt(e.emp_correo, 'Correo', { max: 200 });
   if (correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) errores.push('Correo: formato no válido');
-  const actividad = oneOf(d.actividad, ['Sí', 'No'], 'Actividad');
+  const produjo = oneOf(d.produjo, ['Sí', 'No'], '¿Produjo semilla?');
+  const plantulas = oneOf(d.plantulas, ['Sí', 'No'], '¿Tiene plántulas?');
+  // "Sí" when the company answered yes to either question.
+  const actividad = produjo === 'Sí' || plantulas === 'Sí' ? 'Sí' : 'No';
 
   const envio = {
     nit: nit && nit.replace(/[.\s]/g, ''),
@@ -81,6 +84,8 @@ function validar(d) {
     correo,
     fecha: txt(e.emp_fecha, 'Fecha', { max: 10 }),
     actividad,
+    produjo,
+    plantulas,
     obs: txt(d.obs, 'Observaciones', { req: false, max: 2000 }),
     declaracion: d.declaracion ? 1 : 0,
   };
@@ -97,6 +102,9 @@ function validar(d) {
     const donde = `Material ${i + 1}`;
     const cat = CATS[m.cat];
     if (!cat) { errores.push(`${donde}: tipo de registro no válido`); return null; }
+    if ((m.cat === 'prod' && produjo !== 'Sí') || (m.cat !== 'prod' && plantulas !== 'Sí')) {
+      errores.push(`${donde}: el tipo de registro no corresponde a las respuestas iniciales`);
+    }
     const usa = (c) => cat.campos.includes(c);
     const cantidad = num(m.cant, `${donde}, cantidad`, 'int', { min: 0 });
     const vendida = usa('vend') ? num(m.vend, `${donde}, vendida`, 'int', { min: 0 }) : null;
