@@ -2,7 +2,7 @@
 // POST /api/respuestas  →  { ok: true, radicado: "S26-XXXXXXXX" }
 
 const ANIO = 2026;
-const ANIO_PRODUCCION = 2025;
+const ANIO_PRODUCCION = 2026;
 const MAX_BYTES = 1_000_000;
 const MAX_MATERIALES = 300;
 const MAX_VENTAS = 1000;
