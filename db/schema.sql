@@ -18,7 +18,9 @@ CREATE TABLE IF NOT EXISTS envios (
   cargo       TEXT,
   correo      TEXT,
   fecha       TEXT,
-  actividad   TEXT NOT NULL,
+  actividad   TEXT NOT NULL,                -- Sí si respondió Sí a produjo o a plantulas
+  produjo     TEXT,                         -- ¿Produjo semilla en el año de la encuesta?
+  plantulas   TEXT,                         -- ¿Tiene plántulas en previvero o vivero?
   obs         TEXT,
   declaracion INTEGER NOT NULL DEFAULT 0
 );
@@ -30,7 +32,7 @@ CREATE TABLE IF NOT EXISTS materiales (
   categoria TEXT NOT NULL,
   material  TEXT NOT NULL,
   cantidad  INTEGER,
-  precio    INTEGER,                        -- valor de venta en COP: por semilla (producida) o por palma (previvero/vivero)
+  precio    INTEGER,                        -- valor de venta en COP: por semilla (producida) o por plántula (previvero/vivero)
   vendida   INTEGER,                        -- de la producida: vendida o vendida por entregar
   densidad  REAL,
   descarte  REAL,
