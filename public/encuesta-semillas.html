@@ -106,6 +106,7 @@
     .check input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--olive); flex: none; }
 
     /* Registros repetibles */
+    #hueco-plantulas:not(:empty), #grupo-plantulas { margin-top: 24px; }
     .item { border: 1px solid var(--line); border-left: 4px solid var(--olive-mid); border-radius: 10px; padding: 16px; margin-bottom: 14px; background: #fcfcf8; }
     .item__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
     .item__title { font-weight: 700; color: var(--olive-dark); }
@@ -204,7 +205,7 @@
               <label class="choice"><input type="radio" name="emp_produjo" value="Sí" required><span>Sí</span></label>
               <label class="choice"><input type="radio" name="emp_produjo" value="No"><span>No</span></label>
             </div>
-            <span class="hint">Si responde "Sí", continuará a Producción e inventario, donde puede registrar semilla producida y plántulas.</span>
+            <span class="hint">Si responde "Sí", continuará a Producción e inventario para registrar la semilla producida.</span>
             <span class="error"></span>
           </div>
           <div class="field" data-radio="emp_plantulas" id="pregunta-plantulas" style="margin-top:16px" hidden>
@@ -213,7 +214,7 @@
               <label class="choice"><input type="radio" name="emp_plantulas" value="Sí" required><span>Sí</span></label>
               <label class="choice"><input type="radio" name="emp_plantulas" value="No"><span>No</span></label>
             </div>
-            <span class="hint">Si responde "No", pasará directamente al final de la encuesta.</span>
+            <span class="hint" id="hint-plantulas"></span>
             <span class="error"></span>
           </div>
         </div>
@@ -224,10 +225,20 @@
       <section class="step" data-step="1" hidden>
         <div class="panel">
           <h2>Producción e inventario</h2>
-          <p class="lead">Agregue un registro por cada variedad o material y categoría: semilla producida en <span data-anio-prod>2026</span>, plántulas en previvero (hasta 3 meses) o en vivero (hasta 9 meses). Puede agregar todos los que necesite.</p>
-          <div id="materiales"></div>
-          <div class="empty" id="materiales-vacio">Aún no hay materiales registrados. Use "+ Agregar material" para registrar la producción o el inventario.</div>
-          <button type="button" class="btn btn--accent" id="add-material">+ Agregar material</button>
+          <p class="lead">Agregue un registro por cada variedad o material y categoría, tantos como considere necesario.</p>
+          <div class="grupo" id="grupo-semilla" data-cats="prod" data-titulo="Semilla producida" hidden>
+            <h3>Semilla producida en <span data-anio-prod>2026</span></h3>
+            <div class="lista"></div>
+            <div class="empty" data-vacio>Aún no hay registros. Use "+ Agregar semilla producida".</div>
+            <button type="button" class="btn btn--accent" data-add>+ Agregar semilla producida</button>
+          </div>
+          <div id="hueco-plantulas"></div>
+          <div class="grupo" id="grupo-plantulas" data-cats="pre viv" data-titulo="Plántulas" hidden>
+            <h3>Plántulas en previvero (hasta 3 meses) o vivero (hasta 9 meses)</h3>
+            <div class="lista"></div>
+            <div class="empty" data-vacio>Aún no hay registros. Use "+ Agregar plántulas".</div>
+            <button type="button" class="btn btn--accent" data-add>+ Agregar plántulas</button>
+          </div>
         </div>
         <div class="nav"><button type="button" class="btn btn--ghost" data-prev>Atrás</button><span class="spacer"></span><button type="button" class="btn btn--primary" data-next>Continuar</button></div>
       </section>
@@ -351,7 +362,7 @@
     }
     // Only fields hidden by the chosen category or by "no activity" are skipped; the steps
     // themselves are hidden while browsing other steps and must still be validated.
-    function isVisible(el) { var f = el.closest('[data-only], #declaracion-wrap'); return !(f && f.hidden); }
+    function isVisible(el) { var f = el.closest('[data-only], #declaracion-wrap'); var g = el.closest('.grupo'); return !(f && f.hidden) && !(g && g.hidden); }
     function checkInput(el) {
       var v = (el.value || '').trim();
       var kind = el.dataset.kind;
@@ -435,30 +446,31 @@
       if (cat === 'prod' && !anio.value) anio.value = CONFIG.anioProduccion;
     }
     function renumber() {
-      var items = $$('#materiales .item');
-      items.forEach(function (it, i) { $('.item__title', it).textContent = 'Material ' + (i + 1); });
-      $('#materiales-vacio').hidden = items.length > 0;
-    }
-    // Producida needs "Sí" to the first question; previvero/vivero need "Sí" to the second.
-    function respuesta(name) { var r = $('input[name=' + name + ']:checked'); return r ? r.value : ''; }
-    function catPermitida(id) {
-      var produjo = respuesta('emp_produjo');
-      if (id === 'prod') return produjo !== 'No';
-      return produjo === 'Sí' || respuesta('emp_plantulas') !== 'No';
-    }
-    function refreshCats(item) {
-      var sel = $('select[name=cat]', item);
-      $$('option', sel).forEach(function (o) {
-        if (!o.value) return;
-        o.hidden = o.disabled = !catPermitida(o.value);
+      $$('.grupo').forEach(function (g) {
+        var items = $$('.item', g);
+        items.forEach(function (it, n) { $('.item__title', it).textContent = g.dataset.titulo + ' ' + (n + 1); });
+        $('[data-vacio]', g).hidden = items.length > 0;
       });
-      if (sel.value && !catPermitida(sel.value)) { sel.value = ''; applyCategory(item); }
     }
-    function addItem(data, focus) {
+    function respuesta(name) { var r = $('input[name=' + name + ']:checked'); return r ? r.value : ''; }
+    // Semilla producida needs "Sí" to the first question; previvero/vivero need "Sí" to the second.
+    function catPermitida(id) {
+      return id === 'prod' ? respuesta('emp_produjo') === 'Sí' : respuesta('emp_plantulas') === 'Sí';
+    }
+    function grupoDe(cat) { return cat === 'prod' ? $('#grupo-semilla') : $('#grupo-plantulas'); }
+    function addItem(data, focus, grupo) {
+      grupo = grupo || grupoDe(data && data.cat);
+      var cats = grupo.dataset.cats.split(' ');
       var tpl = $('#tpl-material').content.cloneNode(true);
       var item = $('.item', tpl);
-      fillSelect($('select[name=cat]', item), CATS);
-      $('select[name=cat]', item).addEventListener('change', function () { applyCategory(item); });
+      var sel = $('select[name=cat]', item);
+      fillSelect(sel, CATS.filter(function (c) { return cats.indexOf(c.id) >= 0; }));
+      if (cats.length === 1) {
+        // Only one kind of record in this group: preselect it and hide the selector.
+        sel.value = cats[0];
+        sel.closest('.field').hidden = true;
+      }
+      sel.addEventListener('change', function () { applyCategory(item); });
       Object.keys(data || {}).forEach(function (k) {
         var el = $('[name="' + k + '"]', item);
         if (el) el.value = data[k];
@@ -469,29 +481,38 @@
         renumber();
         save();
       });
-      $('#materiales').appendChild(item);
-      refreshCats(item);
+      $('.lista', grupo).appendChild(item);
       applyCategory(item);
       renumber();
-      if (focus) { item.scrollIntoView({ block: 'start' }); $('select, input', item).focus({ preventScroll: true }); }
+      if (focus) { item.scrollIntoView({ block: 'start' }); $('select:not([hidden]), input', item).focus({ preventScroll: true }); }
       return item;
     }
-    $('#add-material').addEventListener('click', function () { addItem(null, true); save(); });
-    function togglePlantulas() {
+    $$('[data-add]').forEach(function (btn) {
+      btn.addEventListener('click', function () { addItem(null, true, btn.closest('.grupo')); save(); });
+    });
+    // With "Sí" to the first question the seedlings question moves to step 2, after the seed records.
+    function actualizarFlujo() {
+      var produjo = respuesta('emp_produjo');
       var pregunta = $('#pregunta-plantulas');
-      pregunta.hidden = respuesta('emp_produjo') !== 'No';
-      if (pregunta.hidden) {
-        $$('input[name=emp_plantulas]').forEach(function (r) { r.checked = false; });
-        setError(pregunta, '');
+      pregunta.hidden = !produjo;
+      if (produjo === 'Sí') {
+        $('#hueco-plantulas').appendChild(pregunta);
+        $('#hint-plantulas').textContent = 'Si responde "Sí", podrá registrar plántulas de previvero y vivero.';
+      } else {
+        $('[data-radio=emp_produjo]').after(pregunta);
+        $('#hint-plantulas').textContent = 'Si responde "No", pasará directamente al final de la encuesta.';
       }
+      $('#grupo-semilla').hidden = produjo !== 'Sí';
+      $('#grupo-plantulas').hidden = respuesta('emp_plantulas') !== 'Sí';
+      setError(pregunta, '');
     }
     $$('input[name=emp_produjo], input[name=emp_plantulas]').forEach(function (r) {
-      r.addEventListener('change', function () { togglePlantulas(); $$('#materiales .item').forEach(refreshCats); });
+      r.addEventListener('change', actualizarFlujo);
     });
 
     // ---------- Estado ----------
-    function readItems(listSel) {
-      return $$(listSel + ' .item').map(function (it) {
+    function readItems() {
+      return $$('.grupo:not([hidden]) .item').map(function (it) {
         var o = {};
         $$('input, select', it).forEach(function (el) {
           if (isVisible(el)) o[el.name] = el.value.trim();
@@ -502,13 +523,13 @@
     function collect() {
       var emp = {};
       EMP_FIELDS.forEach(function (k) { emp[k] = form.elements[k].value.trim(); });
-      var produjo = respuesta('emp_produjo'), plantulas = produjo === 'No' ? respuesta('emp_plantulas') : '';
+      var produjo = respuesta('emp_produjo'), plantulas = respuesta('emp_plantulas');
       return {
         empresa: emp,
         produjo: produjo,
         plantulas: plantulas,
-        actividad: produjo === 'Sí' || plantulas === 'Sí' ? 'Sí' : (plantulas === 'No' ? 'No' : ''),
-        materiales: readItems('#materiales'),
+        actividad: produjo === 'Sí' || plantulas === 'Sí' ? 'Sí' : (produjo === 'No' && plantulas === 'No' ? 'No' : ''),
+        materiales: readItems(),
         obs: form.elements.obs_general.value.trim(),
         declaracion: form.elements.declaracion.checked,
       };
@@ -528,7 +549,7 @@
         var r = x[1] && $('input[name=' + x[0] + '][value="' + x[1] + '"]');
         if (r) r.checked = true;
       });
-      togglePlantulas();
+      actualizarFlujo();
       (d.materiales || []).forEach(function (m) { addItem(m); });
       form.elements.obs_general.value = d.obs || '';
       form.elements.declaracion.checked = !!d.declaracion;
